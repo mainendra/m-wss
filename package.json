@@ -1,0 +1,22 @@
+{
+  "name": "wss",
+  "version": "0.0.1",
+  "description": "Web Socket Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "debug": "node --inspect index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.spectrumflow.net:mainendra/wss.git"
+  },
+  "keywords": [
+    "websocket"
+  ],
+  "author": "Mainendra",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.2.2"
+  }
+}

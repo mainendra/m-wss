@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket server</title>
+    <script>
+        function updateServerUrl() {
+            var serverUrl = document.getElementById('server-url').value;
+            fetch('?url=' + serverUrl).then(() => alert('Server URL updated'));
+        }
+        function sendMessage() {
+            fetch('/sendeas').then(() => alert('Message sent'));
+        }
+        function sendMessage2() {
+            fetch('/sendeas2').then(() => alert('Message sent'));
+        }
+        function sendMessage3() {
+            fetch('/sendeas3').then(() => alert('Message sent'));
+        }
+        function sendMessageNoAudio() {
+            fetch('/sendeasnoaudio').then(() => alert('Message sent'));
+        }
+        function closeWSS() {
+            fetch('/closewss').then(() => alert('WebSocket server closed'));
+        }
+        function closeWSSWithError1007() {
+            fetch('/closewss?error=1007').then(() => alert('WebSocket server closed'));
+        }
+        function openWSS() {
+            fetch('/openwss').then(() => alert('WebSocket server opened'));
+        }
+        function toggleError() {
+            fetch('/toggleerror').then(() => alert('Toggled server error flag'));
+        }
+        function onload() {
+            document.getElementById('server-url').value = window.location.origin;
+        }
+    </script>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body onload="onload()">
+    <div class="container">
+        <label for="server-url">Server URL</label>
+        <input type="text" id="server-url" placeholder="http://localhost:8989" />
+        <button id="update-url" onclick="updateServerUrl()">Update Server</button>
+        <button id="send-eas" onclick="sendMessage()">Send EAS</button>
+        <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
+        <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
+        <button id="send-eas-no-audio" onclick="sendMessageNoAudio()">Send EAS without audio</button>
+        <button id="close-wss" onclick="closeWSS()">Close WebSocket server</button>
+        <button id="close-wss" onclick="closeWSSWithError1007()">Close WebSocket server (Error 1007)</button>
+        <button id="open-wss" onclick="openWSS()">Open WebSocket server</button>
+        <button id="toggle-error" onclick="toggleError()">Toggle HTTP Error</button>
+    </div>
+</body>
+</html>
