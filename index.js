@@ -201,15 +201,15 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
-        const file = fs.readFileSync('./client.html', 'utf8');
+        const file = fs.readFileSync('client.html', 'utf8');
         resp.end(file, 'utf-8');
     } else if(req.url.endsWith('.mp3')) {
         // server mp3 file
         const contentType = 'audio/mpeg';
-        const fileStats = fs.statSync('./eas.mp3');
+        const fileStats = fs.statSync('eas.mp3');
         resp.writeHead(200, { 'Content-Type': contentType, 'Content-Length': fileStats.size });
         // read file
-        const fileStream = fs.createReadStream('./eas.mp3');
+        const fileStream = fs.createReadStream('eas.mp3');
         fileStream.pipe(resp);
     } else if(req.url.endsWith('toggleerror')) {
         SERVER_ERROR_ENABLED = !SERVER_ERROR_ENABLED;
