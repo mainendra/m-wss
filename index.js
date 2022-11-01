@@ -105,7 +105,7 @@ function sendEASMessageNoAudio() {
     });
 }
 
-function closeAllWS(error='1000') {
+function closeAllWS(error='3000') {
     allWSConnection = false;
     wss.clients.forEach(socket => {
         socket.close(+error);
