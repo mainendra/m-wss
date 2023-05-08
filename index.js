@@ -131,7 +131,9 @@ const server = createServer((req, resp) => {
     const queryObject = url.parse(req.url,true).query;
     SERVER_URL = queryObject.url || SERVER_URL;
 
-    if(req.url.endsWith('46.json')) {
+    const reqUrl = req.url.split('?')[0]; // ignore query param
+
+    if(reqUrl.endsWith('46.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
             resp.writeHead(503, { 'Content-Type': contentType });
@@ -141,7 +143,7 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessage()), 'utf-8');
-    } else if(req.url.endsWith('47.json')) {
+    } else if(reqUrl.endsWith('47.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
             resp.writeHead(503, { 'Content-Type': contentType });
@@ -151,7 +153,7 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessage2()), 'utf-8');
-    } else if(req.url.endsWith('48.json')) {
+    } else if(reqUrl.endsWith('48.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
             resp.writeHead(503, { 'Content-Type': contentType });
@@ -161,49 +163,49 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessageNoAudio()), 'utf-8');
-    } else if(req.url.endsWith('sendeasnoaudio')) {
+    } else if(reqUrl.endsWith('sendeasnoaudio')) {
         sendEASMessageNoAudio();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
-    } else if(req.url.endsWith('sendeas2')) {
+    } else if(reqUrl.endsWith('sendeas2')) {
         sendEASMessage2();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
-    } else if(req.url.endsWith('sendeas3')) {
+    } else if(reqUrl.endsWith('sendeas3')) {
         sendEASMessage3();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
-    } else if(req.url.endsWith('sendeas')) {
+    } else if(reqUrl.endsWith('sendeas')) {
         sendEASMessage();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
-    } else if(req.url.endsWith('closewss')) {
+    } else if(reqUrl.endsWith('closewss')) {
         closeAllWS(queryObject.error);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Websocket server closed');
-    } else if(req.url.endsWith('closewss?error=1007')) {
+    } else if(reqUrl.endsWith('closewss?error=1007')) {
         closeAllWS('1007');
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Websocket server closed');
-    } else if(req.url.endsWith('openwss')) {
+    } else if(reqUrl.endsWith('openwss')) {
         allWSConnection = true;
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Websocket server opened');
-    } else if(req.url.endsWith('client')) {
+    } else if(reqUrl.endsWith('client')) {
         // server html file
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
         const file = fs.readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
-    } else if(req.url.endsWith('.mp3')) {
+    } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
         const contentType = 'audio/mpeg';
         const fileStats = fs.statSync('eas.mp3');
@@ -211,7 +213,7 @@ const server = createServer((req, resp) => {
         // read file
         const fileStream = fs.createReadStream('eas.mp3');
         fileStream.pipe(resp);
-    } else if(req.url.endsWith('toggleerror')) {
+    } else if(reqUrl.endsWith('toggleerror')) {
         SERVER_ERROR_ENABLED = !SERVER_ERROR_ENABLED;
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
