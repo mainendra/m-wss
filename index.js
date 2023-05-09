@@ -6,7 +6,6 @@ let { WebSocketServer } = require('ws');
 const PORT = process.env.PORT || 8989;
 const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
-let FIPS_CODE = '008014';
 let SERVER_ERROR_ENABLED = false;
 
 const easWSMessage = (serverUrl = SERVER_URL) => ({
@@ -44,7 +43,7 @@ const easMessage = (serverUrl = SERVER_URL) => ({
             areaDesc: 'Broomfield, CO',
             geocode: {
                 valueName: 'FIPS6',
-                value: FIPS_CODE
+                value: '008014'
             },
             polygon: ''
         },
@@ -66,7 +65,7 @@ const easMessage2 = () => ({
             areaDesc: 'Broomfield, CO',
             geocode: {
                 valueName: 'FIPS6',
-                value: FIPS_CODE
+                value: '008014'
             },
             polygon: ''
         },
@@ -89,7 +88,7 @@ const easMessageNoAudio = () => ({
             areaDesc: 'Broomfield, CO',
             geocode: {
                 valueName: 'FIPS6',
-                value: FIPS_CODE
+                value: '008014'
             },
             polygon: ''
         },
@@ -155,7 +154,6 @@ const server = createServer((req, resp) => {
     // get query params
     const queryObject = url.parse(req.url,true).query;
     SERVER_URL = queryObject.url || SERVER_URL;
-    FIPS_CODE = queryObject.fips || FIPS_CODE;
 
     const reqUrl = req.url.split('?')[0]; // ignore query param
 

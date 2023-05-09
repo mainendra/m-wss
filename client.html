@@ -37,10 +37,6 @@
         function onload() {
             document.getElementById('server-url').value = window.location.origin;
         }
-        function updateFIPS() {
-            var fips = document.getElementById('fipscode').value;
-            fetch('?fips=' + fips).then(() => alert('FIPS updated'));
-        }
     </script>
     <style>
         .container {
@@ -60,8 +56,6 @@
         <label for="server-url">Server URL</label>
         <input type="text" id="server-url" placeholder="http://localhost:8989" />
         <button id="update-url" onclick="updateServerUrl()">Update Server</button>
-        <input type="text" id="fipscode" placeholder="008014" />
-        <button id="update-fips" onclick="updateFIPS()">Update FIPS (optional)</button>
         <button id="send-eas" onclick="sendMessage()">Send EAS</button>
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
         <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
