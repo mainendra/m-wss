@@ -39,6 +39,14 @@ const easWSMessageNoAudio = (serverUrl = SERVER_URL) => ({
 
 const easMessage = (serverUrl = SERVER_URL) => ({
     info: {
+        area: {
+            areaDesc: 'Broomfield, CO',
+            geocode: {
+                valueName: 'FIPS6',
+                value: '008014'
+            },
+            polygon: ''
+        },
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
             uri: serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3',
@@ -53,6 +61,14 @@ const easMessage = (serverUrl = SERVER_URL) => ({
 });
 const easMessage2 = () => ({
     info: {
+        area: {
+            areaDesc: 'Broomfield, CO',
+            geocode: {
+                valueName: 'FIPS6',
+                value: '008014'
+            },
+            polygon: ''
+        },
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
             uri: 'https://pqi-ppe-cdn.enwd.co.sa.charterlab.com/EAS3/cap_eas_alert_audio_70815.mp3',
@@ -68,6 +84,14 @@ const easMessage2 = () => ({
 
 const easMessageNoAudio = () => ({
     info: {
+        area: {
+            areaDesc: 'Broomfield, CO',
+            geocode: {
+                valueName: 'FIPS6',
+                value: '008014'
+            },
+            polygon: ''
+        },
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
             uri: '',
