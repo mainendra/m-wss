@@ -46,7 +46,7 @@ const easMessage = (serverUrl = SERVER_URL) => ({
         }],
         parameter: [{
             valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018',
+            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
     },
@@ -60,7 +60,7 @@ const easMessage2 = () => ({
         }],
         parameter: [{
             valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018',
+            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
     },
@@ -75,7 +75,7 @@ const easMessageNoAudio = () => ({
         }],
         parameter: [{
             valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018',
+            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
     },
