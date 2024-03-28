@@ -8,6 +8,13 @@ const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
 
+const easWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
+    GenericMessage: {
+        SecureContent: {
+            Location: serverUrl + '/EAS/CAP-NET-IN-88546-wrong-url.json',
+        },
+    },
+});
 const easWSMessage = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
         SecureContent: {
@@ -84,6 +91,11 @@ const easMessageNoAudio = () => ({
 let wss;
 let allWSConnection = true;
 
+function sendEASMessageWrongUrl() {
+    wss.clients.forEach(socket => {
+        socket.send(JSON.stringify(easWSMessageWrongUrl()));
+    });
+}
 function sendEASMessage() {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(easWSMessage()));
@@ -118,7 +130,7 @@ const server = createServer((req, resp) => {
     resp.setHeader('Access-Control-Request-Method', 'OPTIONS, POST, GET');
     // resp.setHeader('Access-Control-Allow-Methods', '*');
     resp.setHeader('Access-Control-Allow-Credentials', true);
-    resp.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, device_id, x-trace-id');
+    resp.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, device_id, x-trace-id, x-client-quantum-visit-id, x-client-version, x-client-os-version, x-client-id, x-client-device-id');
     resp.setHeader('Access-Control-Expose-Headers', 'x-trace-id')
     resp.setHeader('x-trace-id', '7e9a43c0a065-1d9c-000000000007981f');
     if ( resp.method === 'OPTIONS' ) {
@@ -133,7 +145,12 @@ const server = createServer((req, resp) => {
 
     const reqUrl = req.url.split('?')[0]; // ignore query param
 
-    if(reqUrl.endsWith('46.json')) {
+    if (reqUrl.endsWith('wrong-url.json')) {
+        const contentType = 'text/html';
+        resp.writeHead(404, { 'Content-Type': contentType });
+        resp.end();
+        return;
+    } else if(reqUrl.endsWith('46.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
             resp.writeHead(503, { 'Content-Type': contentType });
@@ -178,6 +195,11 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
+    } else if(reqUrl.endsWith('sendeaswrongurl')) {
+        sendEASMessageWrongUrl();
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeas')) {
         sendEASMessage();
         const contentType = 'text/html';
@@ -204,6 +226,13 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
         const file = fs.readFileSync('./client.html', 'utf8');
+        resp.end(file, 'utf-8');
+    } else if(reqUrl.endsWith('apiconfig')) {
+        // server html file
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        // read file
+        const file = fs.readFileSync('./apiconfig.json', 'utf8');
         resp.end(file, 'utf-8');
     } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
