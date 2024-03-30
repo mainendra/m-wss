@@ -15,6 +15,13 @@ const easWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
         },
     },
 });
+const easWSMessageCORSUrl = (serverUrl = SERVER_URL) => ({
+    GenericMessage: {
+        SecureContent: {
+            Location: serverUrl + '/EAS/CAP-NET-IN-88546-cors-url.json',
+        },
+    },
+});
 const easWSMessage = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
         SecureContent: {
@@ -91,6 +98,11 @@ const easMessageNoAudio = () => ({
 let wss;
 let allWSConnection = true;
 
+function sendEASMessageCORSUrl() {
+    wss.clients.forEach(socket => {
+        socket.send(JSON.stringify(easWSMessageCORSUrl()));
+    });
+}
 function sendEASMessageWrongUrl() {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(easWSMessageWrongUrl()));
@@ -145,7 +157,14 @@ const server = createServer((req, resp) => {
 
     const reqUrl = req.url.split('?')[0]; // ignore query param
 
-    if (reqUrl.endsWith('wrong-url.json')) {
+    if (reqUrl.endsWith('cors-url.json')) {
+        resp.removeHeader('Access-Control-Allow-Headers');
+        resp.removeHeader('Access-Control-Allow-Origin');
+        const contentType = 'text/html';
+        resp.writeHead(404, { 'Content-Type': contentType });
+        resp.end();
+        return;
+    } else if (reqUrl.endsWith('wrong-url.json')) {
         const contentType = 'text/html';
         resp.writeHead(404, { 'Content-Type': contentType });
         resp.end();
@@ -192,6 +211,11 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeas3')) {
         sendEASMessage3();
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('sendeascorsurl')) {
+        sendEASMessageCORSUrl();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');

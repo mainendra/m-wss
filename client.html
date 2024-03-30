@@ -22,6 +22,9 @@
         function sendMessageWrongUrl() {
             fetch('/sendeaswrongurl').then(() => alert('Message sent'));
         }
+        function sendMessageCORSUrl() {
+            fetch('/sendeascorsurl').then(() => alert('Message sent'));
+        }
         function sendMessageNoAudio() {
             fetch('/sendeasnoaudio').then(() => alert('Message sent'));
         }
@@ -63,6 +66,7 @@
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
         <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
         <button id="send-eas" onclick="sendMessageWrongUrl()">Send EAS Wrong URL</button>
+        <button id="send-eas" onclick="sendMessageCORSUrl()">Send EAS CORS URL</button>
         <button id="send-eas-no-audio" onclick="sendMessageNoAudio()">Send EAS without audio</button>
         <button id="close-wss" onclick="closeWSS()">Close WebSocket server</button>
         <button id="close-wss" onclick="closeWSSWithError1007()">Close WebSocket server (Error 1007)</button>
