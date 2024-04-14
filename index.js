@@ -1,7 +1,7 @@
-const url = require('url');
-const fs = require('fs');
-let { createServer } = require('http');
-let { WebSocketServer } = require('ws');
+import { parse } from 'url';
+import { readFileSync, statSync, createReadStream } from 'fs';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
 
 const PORT = process.env.PORT || 8989;
 const expiryDurationMs = 60 * 1000;
@@ -152,7 +152,7 @@ const server = createServer((req, resp) => {
     }
 
     // get query params
-    const queryObject = url.parse(req.url,true).query;
+    const queryObject = parse(req.url,true).query;
     SERVER_URL = queryObject.url || SERVER_URL;
 
     const reqUrl = req.url.split('?')[0]; // ignore query param
@@ -249,22 +249,22 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
-        const file = fs.readFileSync('./client.html', 'utf8');
+        const file = readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
     } else if(reqUrl.endsWith('apiconfig')) {
         // server html file
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
-        const file = fs.readFileSync('./apiconfig.json', 'utf8');
+        const file = readFileSync('./apiconfig.json', 'utf8');
         resp.end(file, 'utf-8');
     } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
         const contentType = 'audio/mpeg';
-        const fileStats = fs.statSync('eas.mp3');
+        const fileStats = statSync('eas.mp3');
         resp.writeHead(200, { 'Content-Type': contentType, 'Content-Length': fileStats.size });
         // read file
-        const fileStream = fs.createReadStream('eas.mp3');
+        const fileStream = createReadStream('eas.mp3');
         fileStream.pipe(resp);
     } else if(reqUrl.endsWith('toggleerror')) {
         SERVER_ERROR_ENABLED = !SERVER_ERROR_ENABLED;
