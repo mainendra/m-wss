@@ -136,10 +136,10 @@ function closeAllWS(error='3000') {
     });
 }
 
-function terminateAllWS() {
+function errorAllWS() {
     allWSConnection = false;
     wss.clients.forEach(socket => {
-        socket.terminate();
+        socket.emit('error', new Error('Simulated WebSocket error'));
     });
 }
 
@@ -236,11 +236,11 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
-    } else if(reqUrl.endsWith('terminatewss')) {
-        terminateAllWS();
+    } else if(reqUrl.endsWith('errorwss')) {
+        errorAllWS();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end('Websocket server terminated');
+        resp.end('Error sent');
     } else if(reqUrl.endsWith('closewss')) {
         closeAllWS(queryObject.error);
         const contentType = 'text/html';
