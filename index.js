@@ -136,6 +136,13 @@ function closeAllWS(error='3000') {
     });
 }
 
+function terminateAllWS() {
+    allWSConnection = false;
+    wss.clients.forEach(socket => {
+        socket.terminate();
+    });
+}
+
 const server = createServer((req, resp) => {
     // Set CORS headers
     resp.setHeader('Access-Control-Allow-Origin', '*');
@@ -229,6 +236,11 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
+    } else if(reqUrl.endsWith('terminatewss')) {
+        terminateAllWS();
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Websocket server terminated');
     } else if(reqUrl.endsWith('closewss')) {
         closeAllWS(queryObject.error);
         const contentType = 'text/html';
