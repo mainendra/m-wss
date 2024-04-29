@@ -34,6 +34,9 @@
         function closeWSSWithError1007() {
             fetch('/closewss?error=1007').then(() => alert('WebSocket server closed'));
         }
+        function closeWSSWithError1011() {
+            fetch('/closewss?error=1011').then(() => alert('WebSocket server closed'));
+        }
         function openWSS() {
             fetch('/openwss').then(() => alert('WebSocket server opened'));
         }
@@ -69,6 +72,7 @@
         <button id="send-eas" onclick="sendMessageCORSUrl()">Send EAS CORS URL</button>
         <button id="send-eas-no-audio" onclick="sendMessageNoAudio()">Send EAS without audio</button>
         <button id="close-wss" onclick="closeWSS()">Close WebSocket server</button>
+        <button id="close-wss" onclick="closeWSSWithError1011()">Close WebSocket server (Error 1011)</button>
         <button id="close-wss" onclick="closeWSSWithError1007()">Close WebSocket server (Error 1007)</button>
         <button id="open-wss" onclick="openWSS()">Open WebSocket server</button>
         <button id="toggle-error" onclick="toggleError()">Toggle HTTP Error</button>
