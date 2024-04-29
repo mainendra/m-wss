@@ -139,7 +139,7 @@ function closeAllWS(error='3000') {
 function errorAllWS() {
     allWSConnection = false;
     wss.clients.forEach(socket => {
-        socket.emit('error', new Error('Simulated WebSocket error'));
+        socket.send(new Error('Simulated WebSocket error'));
     });
 }
 
