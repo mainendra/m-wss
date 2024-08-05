@@ -128,6 +128,11 @@ function sendEASMessageNoAudio() {
         socket.send(JSON.stringify(easWSMessageNoAudio()));
     });
 }
+function sendAltCustExpMessage(msgStr) {
+    wss.clients.forEach(socket => {
+        socket.send(msgStr);
+    });
+}
 
 function closeAllWS(error='3000') {
     allWSConnection = false;
@@ -206,6 +211,11 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessageNoAudio()), 'utf-8');
+    } else if(reqUrl.includes('sendaltcustexpmsg')) {
+        sendAltCustExpMessage(queryObject.message);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeasnoaudio')) {
         sendEASMessageNoAudio();
         const contentType = 'text/html';

@@ -6,9 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket server</title>
     <script>
+        function getCurrSeconds() {
+            return Math.floor(Date.now() / 1000);
+        }
         function updateServerUrl() {
             var serverUrl = document.getElementById('server-url').value;
             fetch('?url=' + serverUrl).then(() => alert('Server URL updated'));
+        }
+        function sendAltCustExpMessage() {
+            const now = getCurrSeconds();
+            const msg = {
+                "message-correlation-id": "0f787411-761b-4f4d-8e14-c17fffdf506b",
+                type: "altCustExpAuthIgnoreTokenExpiration",
+                message:
+                {
+                    status: document.getElementById('alt-cust-exp-status').value,
+                    gracePeriodStart: now + +document.getElementById('altcust-grace-period-start').value,
+                    gracePeriodEnd: now + +document.getElementById('altcust-grace-period-end').value,
+                }
+            };
+            fetch(`/sendaltcustexpmsg?message=${JSON.stringify(msg)}`).then(() => alert('Message sent'));
         }
         function sendMessage() {
             fetch('/sendeas').then(() => alert('Message sent'));
@@ -80,6 +97,26 @@
         <button id="close-wss" onclick="closeWSSWithError1007()">Close WebSocket server (Error 1007)</button>
         <button id="open-wss" onclick="openWSS()">Open WebSocket server</button>
         <button id="toggle-error" onclick="toggleError()">Toggle HTTP Error</button>
+        <hr/>
+        <label for="alt-cust-exp-status">ALT Cust Experience</label>
+        <select name="alt-cust-exp-status" id="alt-cust-exp-status">
+            <option value="enabled">Enabled</option>
+            <option value="pendingDisabled">Pending Disabled</option>
+            <option value="disabled">Disabled</option>
+        </select>
+        <label for="altcust-grace-period">Grace Period (Now + Seconds)</label>
+        <div id="altcust-grace-period">
+           <div>
+               <label for="altcust-grace-period-start">Start (seconds)</label>
+               <input id="altcust-grace-period-start" type="number" value="0">
+           </div>
+           <div>
+               <label for="altcust-grace-period-end">End (seconds)</label>
+               <input id="altcust-grace-period-end" type="number" value="300">
+           </div>
+           <br/>
+        </div>
+        <button id="send-alt-cust-exp-msg" onclick="sendAltCustExpMessage()">Send AltCutExpMsg</button>
     </div>
 </body>
 </html>
