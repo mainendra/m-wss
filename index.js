@@ -273,7 +273,7 @@ const server = createServer((req, resp) => {
         // read file
         const file = readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
-    } else if(reqUrl.endsWith('apiconfig')) {
+    } else if(reqUrl.endsWith('apiconfig') && fs.existsSync('./apiconfig.json')) {
         // server html file
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
