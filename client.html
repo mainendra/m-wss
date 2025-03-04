@@ -9,9 +9,9 @@
         function getCurrSeconds() {
             return Math.floor(Date.now() / 1000);
         }
-        function updateServerUrl() {
+        function updateServerUrl(noalert=false) {
             var serverUrl = document.getElementById('server-url').value;
-            fetch('?url=' + serverUrl).then(() => alert('Server URL updated'));
+            fetch('?url=' + serverUrl).then(() => noalert ? 'Server URL updated' : alert('Server URL updated'));
         }
         function updateApiConfig() {
             const apiConfigUrl = window.prompt('Please provide apiconfig url');
@@ -77,7 +77,7 @@
         }
         function onload() {
             document.getElementById('server-url').value = window.location.origin;
-            updateServerUrl();
+            updateServerUrl(true);
         }
     </script>
     <style>
