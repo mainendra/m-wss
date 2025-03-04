@@ -8,6 +8,8 @@ const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
 
+let apiconfig;
+
 const easWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
         SecureContent: {
@@ -273,12 +275,26 @@ const server = createServer((req, resp) => {
         // read file
         const file = readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
-    } else if(reqUrl.endsWith('apiconfig') && existsSync('./apiconfig.json')) {
+    } else if(reqUrl.endsWith('updateapiconfig')) {
+        let body = '';
+
+        // Listen for data events and append to body
+        req.on('data', chunk => {
+            body += chunk.toString(); // Convert Buffer to string
+        });
+
+        // End event signals all data has been received
+        req.on('end', () => {
+            apiconfig = body;
+            resp.writeHead(200, { 'Content-Type': 'application/text' });
+            resp.end('Data received');
+        });
+    } else if(reqUrl.endsWith('apiconfig') && (apiconfig || existsSync('./apiconfig.json'))) {
         // server html file
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
-        const file = readFileSync('./apiconfig.json', 'utf8');
+        const file = apiconfig || readFileSync('./apiconfig.json', 'utf8');
         resp.end(file, 'utf-8');
     } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
