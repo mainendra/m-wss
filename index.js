@@ -275,6 +275,11 @@ const server = createServer((req, resp) => {
         // read file
         const file = readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
+    } else if(reqUrl.endsWith('resetapiconfig')) {
+        apiconfig = null;
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('ApiConfig cache cleared');
     } else if(reqUrl.endsWith('updateapiconfig')) {
         let body = '';
 
