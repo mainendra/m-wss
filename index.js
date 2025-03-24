@@ -58,7 +58,9 @@ const eanWSMessage = (serverUrl = SERVER_URL) => ({
             Location: serverUrl + '/EAN/CAP-NET-IN-88444.json',
         },
     },
-    expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime()
+    expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime(),
+    type: 'Alert',
+    subType: 'EAN'
 });
 const eanMessage = () => ({
     info: {
