@@ -52,6 +52,25 @@ const easWSMessageNoAudio = (serverUrl = SERVER_URL) => ({
         },
     },
 });
+const eanWSMessage = (serverUrl = SERVER_URL) => ({
+    GenericMessage: {
+        SecureContent: {
+            Location: serverUrl + '/EAN/CAP-NET-IN-88444.json',
+        },
+    },
+    expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime()
+});
+const eanMessage = () => ({
+    info: {
+        resource: [{
+            resourceDesc: 'EAN DASH Content',
+            uri: 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s/Manifest.mpd',
+            mimeType: 'video/DASH',
+        }],
+        expires: (new Date(Date.now() + expiryDurationMs)).getTime()
+    },
+});
+
 
 const easMessage = (serverUrl = SERVER_URL) => ({
     info: {
@@ -135,6 +154,11 @@ function sendAltCustExpMessage(msgStr) {
         socket.send(msgStr);
     });
 }
+function sendEANMessage() {
+    wss.clients.forEach(socket => {
+        socket.send(JSON.stringify(eanWSMessage()));
+    });
+}
 
 function closeAllWS(error='3000') {
     allWSConnection = false;
@@ -183,6 +207,16 @@ const server = createServer((req, resp) => {
         resp.writeHead(404, { 'Content-Type': contentType });
         resp.end();
         return;
+    } else if(reqUrl.endsWith('88444.json')) {
+        if (SERVER_ERROR_ENABLED) {
+            const contentType = 'text/html';
+            resp.writeHead(503, { 'Content-Type': contentType });
+            resp.end();
+            return;
+        }
+        const contentType = 'application/json';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end(JSON.stringify(eanMessage()), 'utf-8');
     } else if(reqUrl.endsWith('46.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
@@ -245,6 +279,11 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeas')) {
         sendEASMessage();
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('sendean')) {
+        sendEANMessage();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
