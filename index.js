@@ -341,7 +341,12 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
         const file = apiconfig || readFileSync('./apiconfig.json', 'utf8');
-        resp.end(file, 'utf-8');
+
+        // update wss server
+        const apiconfigJson = JSON.parse(file);
+        apiconfigJson.services.vpns.endpoints.socketSubscribe.host = (new URL(SERVER_URL)).host;
+
+        resp.end(JSON.stringify(apiconfigJson), 'utf-8');
     } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
         const contentType = 'audio/mpeg';
