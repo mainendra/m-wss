@@ -45,6 +45,9 @@
         function sendEANMessage() {
             fetch('/sendean').then(() => alert('Message sent'));
         }
+        function sendEANMessageWrongUrl() {
+            fetch('/sendeanwrongurl').then(() => alert('Message sent'));
+        }
         function sendMessage() {
             fetch('/sendeas').then(() => alert('Message sent'));
         }
@@ -107,6 +110,7 @@
         <button id="update-apiconfig" onclick="updateApiConfig()">Update ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
         <button id="send-ean" onclick="sendEANMessage()">Send EAN</button>
+        <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
         <button id="send-eas" onclick="sendMessage()">Send EAS</button>
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
         <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
