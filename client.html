@@ -48,8 +48,8 @@
         function sendEANMessage2(durationSec = 0) {
             fetch('/sendean2?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
         }
-        function sendEANMessage3(eanurl = '') {
-            fetch('/sendean2?eanurl=' + eanurl).then(() => alert('Message sent')).catch(err => alert(err));
+        function sendEANMessage3(eanurl = '', durationSec = 0) {
+            fetch('/sendean2?eanurl=' + eanurl + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent')).catch(err => alert(err));
         }
         function updateEANMessage(durationSec = 0) {
             fetch('/updateean?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
@@ -109,6 +109,15 @@
         button {
             margin-bottom: 10px;
         }
+
+        #custom-url-ean {
+            border: 1px solid black;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body onload="onload()">
@@ -126,8 +135,11 @@
         <label for="ean-expiry-update">EAN expiry duration seconds (update):</label>
         <input type="number" min="0" id="ean-expiry-update" defaultValue="0" />
         <button id="update-expiry-btn2" onclick="updateEANMessage(document.getElementById('ean-expiry-update').value)">Update EAN expiry</button>
-        <input type="text" id="ean-url" placeholder="http://ean/manifest.m3u8" />
-        <button id="send-ean-url" onclick="sendEANMessage3(document.getElementById('ean-url').value)">Send EAN3</button>
+        <div id="custom-url-ean">
+            <input type="text" id="ean-url" placeholder="http://ean/manifest.m3u8" size="50" />
+            <input type="number" min="0" id="ean3-expiry" defaultValue="0" placeholder="expiry duration sec" />
+            <button id="send-ean-url" onclick="sendEANMessage3(document.getElementById('ean-url').value, document.getElementById('ean3-expiry').value)">Send EAN3</button>
+        </div>
         <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
         <button id="send-eas" onclick="sendMessage()">Send EAS</button>
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
