@@ -412,7 +412,7 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean3')) {
-        EAN_URL = parseInt(queryObject.eanurl) || undefined;
+        EAN_URL = queryObject.eanurl;
         const durationMs = parseInt(queryObject.duration) || undefined;
         sendEANMessage3(durationMs);
         const contentType = 'text/html';
