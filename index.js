@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 8989;
 const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
+let EAN_URL;
 
 let apiconfig;
 
@@ -72,6 +73,16 @@ const eanWSMessage2 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) =>
     type: 'Alert',
     subType: 'EAN'
 });
+const eanWSMessage3 = (serverUrl = SERVER_URL) => ({
+    GenericMessage: {
+        SecureContent: {
+            Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
+        },
+    },
+    expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime(),
+    type: 'Alert',
+    subType: 'EAN'
+});
 const updateEANWSMessage = (durationMs = expiryDurationMs) => ({
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
     type: 'Update',
@@ -102,6 +113,16 @@ const eanMessage2 = () => ({
         resource: [{
             resourceDesc: 'EAN DASH Content',
             uri: 'https://linear.twlive.enwd.co.sa.charterlab.com/LIVE/5019/bpk-tv/00243/clear/index.mpd',
+            mimeType: 'video/DASH',
+        }],
+        expires: (new Date(Date.now() + expiryDurationMs)).getTime()
+    },
+});
+const eanMessage3 = () => ({
+    info: {
+        resource: [{
+            resourceDesc: 'EAN DASH Content',
+            uri: EAN_URL,
             mimeType: 'video/DASH',
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).getTime()
@@ -211,6 +232,11 @@ function sendEANMessage2(durationMs) {
         socket.send(JSON.stringify(eanWSMessage2(SERVER_URL, durationMs)));
     });
 }
+function sendEANMessage3() {
+    wss.clients.forEach(socket => {
+        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL)));
+    });
+}
 function updateEANMessage(durationMs) {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(updateEANWSMessage(durationMs)));
@@ -279,6 +305,16 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(eanMessage2()), 'utf-8');
+    } else if(reqUrl.endsWith('99000.json')) {
+        if (SERVER_ERROR_ENABLED || !EAN_URL) {
+            const contentType = 'text/html';
+            resp.writeHead(503, { 'Content-Type': contentType });
+            resp.end();
+            return;
+        }
+        const contentType = 'application/json';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end(JSON.stringify(eanMessage3()), 'utf-8');
     } else if(reqUrl.endsWith('88444.json')) {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
@@ -372,6 +408,12 @@ const server = createServer((req, resp) => {
     } else if(reqUrl.endsWith('sendean2')) {
         const durationMs = parseInt(queryObject.duration) || undefined;
         sendEANMessage2(durationMs);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('sendean3')) {
+        EAN_URL = parseInt(queryObject.eanurl) || undefined;
+        sendEANMessage3();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
