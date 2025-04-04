@@ -48,6 +48,9 @@
         function sendEANMessage2(durationSec = 0) {
             fetch('/sendean2?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
         }
+        function updateEANMessage(durationSec = 0) {
+            fetch('/updateean?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
+        }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
         }
@@ -116,7 +119,10 @@
         <button id="send-ean" onclick="sendEANMessage2()">Send EAN2</button>
         <label for="ean-expiry">EAN expiry duration seconds:</label>
         <input type="number" min="0" id="ean-expiry" defaultValue="0" />
-        <button id="update-url" onclick="sendEANMessage2(document.getElementById('ean-expiry').value)">Send EAN (with expiry)</button>
+        <button id="update-expiry-btn" onclick="sendEANMessage2(document.getElementById('ean-expiry').value)">Send EAN (with expiry)</button>
+        <label for="ean-expiry-update">EAN expiry duration seconds (update):</label>
+        <input type="number" min="0" id="ean-expiry-update" defaultValue="0" />
+        <button id="update-expiry-btn2" onclick="updateEANMessage(document.getElementById('ean-expiry-update').value)">Update EAN expiry</button>
         <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
         <button id="send-eas" onclick="sendMessage()">Send EAS</button>
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>

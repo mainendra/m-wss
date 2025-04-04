@@ -72,6 +72,11 @@ const eanWSMessage2 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) =>
     type: 'Alert',
     subType: 'EAN'
 });
+const updateEANWSMessage = (durationMs = expiryDurationMs) => ({
+    expirationTime: (new Date(Date.now() + durationMs)).getTime(),
+    type: 'Update',
+    subType: 'EAN'
+});
 const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
         SecureContent: {
@@ -204,6 +209,11 @@ function sendEANMessage() {
 function sendEANMessage2(durationMs) {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(eanWSMessage2(SERVER_URL, durationMs)));
+    });
+}
+function updateEANMessage(durationMs) {
+    wss.clients.forEach(socket => {
+        socket.send(JSON.stringify(updateEANWSMessage(durationMs)));
     });
 }
 function sendEANMessageWrongUrl() {
@@ -361,8 +371,13 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean2')) {
         const durationMs = parseInt(queryObject.duration) || undefined;
-        console.log(durationMs);
         sendEANMessage2(durationMs);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('updateean')) {
+        const durationMs = parseInt(queryObject.duration) || undefined;
+        updateEANMessage(durationMs);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
