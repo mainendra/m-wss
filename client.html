@@ -49,7 +49,7 @@
             fetch('/sendean2?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
         }
         function sendEANMessage3(eanurl = '', durationSec = 0) {
-            fetch('/sendean2?eanurl=' + eanurl + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent')).catch(err => alert(err));
+            fetch('/sendean3?eanurl=' + eanurl + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent')).catch(err => alert(err));
         }
         function updateEANMessage(durationSec = 0) {
             fetch('/updateean?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
