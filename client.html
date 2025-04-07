@@ -43,16 +43,20 @@
             fetch(`/sendaltcustexpmsg?message=${JSON.stringify(msg)}`).then(() => alert('Message sent'));
         }
         function sendEANMessage() {
-            fetch('/sendean').then(() => alert('Message sent'));
+            const messageId = document.getElementById('message-id').value;
+            fetch('/sendean?messageid=' + messageId).then(() => alert('Message sent'));
         }
         function sendEANMessage2(durationSec = 0) {
-            fetch('/sendean2?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
+            const messageId = document.getElementById('message-id').value;
+            fetch('/sendean2?duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent'));
         }
         function sendEANMessage3(eanurl = '', durationSec = 0) {
-            fetch('/sendean3?eanurl=' + eanurl + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent')).catch(err => alert(err));
+            const messageId = document.getElementById('message-id').value;
+            fetch('/sendean3?eanurl=' + eanurl + '&duration=' + (durationSec * 1000) + '&messageid' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
         }
         function updateEANMessage(durationSec = 0) {
-            fetch('/updateean?duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
+            const messageId = document.getElementById('message-id').value;
+            fetch('/updateean?duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent'));
         }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
@@ -127,6 +131,7 @@
         <button id="update-url" onclick="updateServerUrl()">Update Server</button>
         <button id="update-apiconfig" onclick="updateApiConfig()">Update ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
+        <input type="text" id="message-id" placeholder="optional ean id (for all)" />
         <button id="send-ean" onclick="sendEANMessage()">Send EAN</button>
         <button id="send-ean" onclick="sendEANMessage2()">Send EAN2</button>
         <label for="ean-expiry">EAN expiry duration seconds:</label>

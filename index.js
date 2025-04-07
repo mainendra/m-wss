@@ -53,7 +53,7 @@ const easWSMessageNoAudio = (serverUrl = SERVER_URL) => ({
         },
     },
 });
-const eanWSMessage = (serverUrl = SERVER_URL) => ({
+const eanWSMessage = (serverUrl = SERVER_URL, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAN/CAP-NET-IN-88444.json',
@@ -61,9 +61,10 @@ const eanWSMessage = (serverUrl = SERVER_URL) => ({
     },
     expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime(),
     type: 'Alert',
-    subType: 'EAN'
+    subType: 'EAN',
+    'message-id': messageId || `${Date.now()}`
 });
-const eanWSMessage2 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) => ({
+const eanWSMessage2 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAN/CAP-NET-IN-99555.json',
@@ -71,9 +72,10 @@ const eanWSMessage2 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) =>
     },
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
     type: 'Alert',
-    subType: 'EAN'
+    subType: 'EAN',
+    'message-id': messageId || `${Date.now()}`
 });
-const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) => ({
+const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
@@ -81,12 +83,20 @@ const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs) =>
     },
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
     type: 'Alert',
-    subType: 'EAN'
+    subType: 'EAN',
+    'message-id': messageId || `${Date.now()}`
 });
-const updateEANWSMessage = (durationMs = expiryDurationMs) => ({
+const updateEANWSMessage = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId) => ({
+    GenericMessage: {
+        SecureContent: {
+            Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
+        },
+    },
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
     type: 'Update',
-    subType: 'EAN'
+    subType: 'EAN',
+    'message-id': messageId || `${Date.now()}`
+
 });
 const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
@@ -222,24 +232,24 @@ function sendAltCustExpMessage(msgStr) {
         socket.send(msgStr);
     });
 }
-function sendEANMessage() {
+function sendEANMessage(messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(eanWSMessage()));
+        socket.send(JSON.stringify(eanWSMessage(SERVER_URL, messageId)));
     });
 }
-function sendEANMessage2(durationMs) {
+function sendEANMessage2(durationMs, messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(eanWSMessage2(SERVER_URL, durationMs)));
+        socket.send(JSON.stringify(eanWSMessage2(SERVER_URL, durationMs, messageId)));
     });
 }
-function sendEANMessage3(durationMs) {
+function sendEANMessage3(durationMs, messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs)));
+        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId)));
     });
 }
-function updateEANMessage(durationMs) {
+function updateEANMessage(durationMs, messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(updateEANWSMessage(durationMs)));
+        socket.send(JSON.stringify(updateEANWSMessage(SERVER_URL, durationMs, messageId)));
     });
 }
 function sendEANMessageWrongUrl() {
@@ -401,26 +411,30 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean')) {
-        sendEANMessage();
+        const messageId = queryObject.messageid;
+        sendEANMessage(messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean2')) {
         const durationMs = parseInt(queryObject.duration) || undefined;
-        sendEANMessage2(durationMs);
+        const messageId = queryObject.messageid;
+        sendEANMessage2(durationMs, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean3')) {
         EAN_URL = queryObject.eanurl;
         const durationMs = parseInt(queryObject.duration) || undefined;
-        sendEANMessage3(durationMs);
+        const messageId = queryObject.messageid;
+        sendEANMessage3(durationMs, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('updateean')) {
         const durationMs = parseInt(queryObject.duration) || undefined;
-        updateEANMessage(durationMs);
+        const messageId = queryObject.messageid;
+        updateEANMessage(durationMs, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
