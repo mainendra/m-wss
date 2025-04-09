@@ -47,7 +47,7 @@
             const eanUrl = document.getElementById('ean-url').value || '';
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'update' : 'sendean3';
-            fetch('/' + apiPath + '?eanurl=' + eanurl + '&duration=' + (durationSec * 1000) + '&messageid' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
         }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
