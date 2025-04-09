@@ -54,7 +54,7 @@ const easWSMessageNoAudio = (serverUrl = SERVER_URL) => ({
         },
     },
 });
-const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId) => ({
+const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
@@ -62,20 +62,8 @@ const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, me
     },
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
     type: 'Alert',
-    subType: 'EAN',
+    subType: update ? 'Update' : 'EAN',
     'message-id': messageId || `${Date.now()}`
-});
-const updateEANWSMessage = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId) => ({
-    GenericMessage: {
-        SecureContent: {
-            Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
-        },
-    },
-    expirationTime: (new Date(Date.now() + durationMs)).getTime(),
-    type: 'Update',
-    subType: 'EAN',
-    'message-id': messageId || `${Date.now()}`
-
 });
 const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     GenericMessage: {
@@ -191,14 +179,9 @@ function sendAltCustExpMessage(msgStr) {
         socket.send(msgStr);
     });
 }
-function sendEANMessage3(durationMs, messageId) {
+function sendEANMessage3(durationMs, messageId, update) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId)));
-    });
-}
-function updateEANMessage(durationMs, messageId) {
-    wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(updateEANWSMessage(SERVER_URL, durationMs, messageId)));
+        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId, update)));
     });
 }
 function sendEANMessageWrongUrl() {
@@ -343,14 +326,15 @@ const server = createServer((req, resp) => {
         EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL;
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
-        sendEANMessage3(durationMs, messageId);
+        sendEANMessage3(durationMs, messageId, false);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('updateean')) {
+        EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL;
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
-        updateEANMessage(durationMs, messageId);
+        sendEANMessage3(durationMs, messageId, true);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
