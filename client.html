@@ -42,21 +42,12 @@
             };
             fetch(`/sendaltcustexpmsg?message=${JSON.stringify(msg)}`).then(() => alert('Message sent'));
         }
-        function sendEANMessage() {
-            const messageId = document.getElementById('message-id').value;
-            fetch('/sendean?messageid=' + messageId).then(() => alert('Message sent'));
-        }
-        function sendEANMessage2(durationSec = 0) {
-            const messageId = document.getElementById('message-id').value;
-            fetch('/sendean2?duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent'));
-        }
-        function sendEANMessage3(eanurl = '', durationSec = 0) {
-            const messageId = document.getElementById('message-id').value;
-            fetch('/sendean3?eanurl=' + eanurl + '&duration=' + (durationSec * 1000) + '&messageid' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
-        }
-        function updateEANMessage(durationSec = 0) {
-            const messageId = document.getElementById('message-id').value;
-            fetch('/updateean?duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent'));
+        function sendEANMessage3(update = false) {
+            const messageId = document.getElementById('message-id').value || '';
+            const eanUrl = document.getElementById('ean-url').value || '';
+            const durationSec = document.getElementById('ean-expiry').value || 0;
+            const apiPath = update ? 'update' : 'sendean3';
+            fetch('/' + apiPath + '?eanurl=' + eanurl + '&duration=' + (durationSec * 1000) + '&messageid' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
         }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
@@ -114,21 +105,13 @@
             margin-bottom: 10px;
         }
 
-        #custom-url-ean {
+        #custom-ean-container {
             border: 1px solid black;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 5px;
             margin: 5px;
-        }
-
-        .ean-container {
-            border: 1px dashed grey;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
         }
     </style>
 </head>
@@ -139,24 +122,14 @@
         <button id="update-url" onclick="updateServerUrl()">Update Server</button>
         <button id="update-apiconfig" onclick="updateApiConfig()">Update ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
-        <div class="ean-container">
-            <label for="message-id">EAN message id:</label>
-            <input type="text" id="message-id" placeholder="optional ean id (for all)" />
-            <button id="send-ean" onclick="sendEANMessage()">Send EAN</button>
-            <button id="send-ean" onclick="sendEANMessage2()">Send EAN2</button>
-            <label for="ean-expiry">EAN expiry duration seconds:</label>
-            <input type="number" min="0" id="ean-expiry" defaultValue="0" />
-            <button id="update-expiry-btn" onclick="sendEANMessage2(document.getElementById('ean-expiry').value)">Send EAN (with expiry)</button>
-            <label for="ean-expiry-update">EAN expiry duration seconds (update):</label>
-            <input type="number" min="0" id="ean-expiry-update" defaultValue="0" />
-            <button id="update-expiry-btn2" onclick="updateEANMessage(document.getElementById('ean-expiry-update').value)">Update EAN expiry</button>
-            <div id="custom-url-ean">
-                <input type="text" id="ean-url" placeholder="http://ean/manifest.m3u8" size="50" />
-                <input type="number" min="0" id="ean3-expiry" defaultValue="0" placeholder="expiry duration sec" />
-                <button id="send-ean-url" onclick="sendEANMessage3(document.getElementById('ean-url').value, document.getElementById('ean3-expiry').value)">Send EAN3</button>
-            </div>
-        <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
+        <div id="custom-ean-container">
+            <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.m3u8" size="50" />
+            <input type="text" id="message-id" placeholder="(optional) ean id" />
+            <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) expiry duration sec" />
+            <button id="send-ean" onclick="sendEANMessage3()">Send EAN</button>
+            <button id="update-ean" onclick="sendEANMessage3(true)">Update EAN</button>
         </div>
+        <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
         <button id="send-eas" onclick="sendMessage()">Send EAS</button>
         <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
         <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
