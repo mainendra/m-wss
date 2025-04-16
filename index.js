@@ -8,7 +8,10 @@ const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
 const DEFAULT_EAN_URL = 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s/Manifest.mpd';
+const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 let EAN_URL;
+let EAS_MESSAGE;
+let EAS_AUDIO;
 
 let apiconfig;
 
@@ -26,33 +29,13 @@ const easWSMessageCORSUrl = (serverUrl = SERVER_URL) => ({
         },
     },
 });
-const easWSMessage = (serverUrl = SERVER_URL) => ({
+const easWSMessage = (serverUrl = SERVER_URL, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAS/CAP-NET-IN-88546.json',
         },
     },
-});
-const easWSMessage2 = (serverUrl = SERVER_URL) => ({
-    GenericMessage: {
-        SecureContent: {
-            Location: serverUrl + '/EAS/CAP-NET-IN-88547.json',
-        },
-    },
-});
-const easWSMessage3 = (serverUrl = SERVER_URL) => ({
-    GenericMessage: {
-        SecureContent: {
-            Location: serverUrl + '/EAS3/CAP-NET-IN-88547.json',
-        },
-    },
-});
-const easWSMessageNoAudio = (serverUrl = SERVER_URL) => ({
-    GenericMessage: {
-        SecureContent: {
-            Location: serverUrl + '/EAS/CAP-NET-IN-88548.json',
-        },
-    },
+    'message-id': messageId || `${Date.now()}`
 });
 const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update) => ({
     GenericMessage: {
@@ -101,43 +84,13 @@ const easMessage = (serverUrl = SERVER_URL) => ({
     info: {
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
-            uri: serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3',
+            uri: EAS_AUDIO ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
             mimeType: 'audio/x-ipaws-audio-mp3',
         }],
         parameter: [{
             valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
-        }],
-        expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
-    },
-});
-const easMessage2 = () => ({
-    info: {
-        resource: [{
-            resourceDesc: 'EAS Broadcast Content',
-            uri: 'https://pqi-ppe-cdn.enwd.co.sa.charterlab.com/EAS3/cap_eas_alert_audio_70815.mp3',
-            mimeType: 'audio/x-ipaws-audio-mp3',
-        }],
-        parameter: [{
-            valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
-        }],
-        expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
-    },
-});
-
-const easMessageNoAudio = () => ({
-    info: {
-        resource: [{
-            resourceDesc: 'EAS Broadcast Content',
-            uri: '',
-            mimeType: 'audio/x-ipaws-audio-mp3',
-        }],
-        parameter: [{
-            valueName: 'EASText',
-            value: 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
-        }],
-        expires: (new Date(Date.now() + expiryDurationMs)).toUTCString()
+            value: EAS_MESSAGE + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
+        }]
     },
 });
 
@@ -154,24 +107,9 @@ function sendEASMessageWrongUrl() {
         socket.send(JSON.stringify(easWSMessageWrongUrl()));
     });
 }
-function sendEASMessage() {
+function sendEASMessage(messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage()));
-    });
-}
-function sendEASMessage2() {
-    wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage2()));
-    });
-}
-function sendEASMessage3() {
-    wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage3()));
-    });
-}
-function sendEASMessageNoAudio() {
-    wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessageNoAudio()));
+        socket.send(JSON.stringify(easWSMessage(messageId)));
     });
 }
 function sendAltCustExpMessage(msgStr) {
@@ -267,43 +205,8 @@ const server = createServer((req, resp) => {
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessage()), 'utf-8');
-    } else if(reqUrl.endsWith('47.json')) {
-        if (SERVER_ERROR_ENABLED) {
-            const contentType = 'text/html';
-            resp.writeHead(503, { 'Content-Type': contentType });
-            resp.end();
-            return;
-        }
-        const contentType = 'application/json';
-        resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end(JSON.stringify(easMessage2()), 'utf-8');
-    } else if(reqUrl.endsWith('48.json')) {
-        if (SERVER_ERROR_ENABLED) {
-            const contentType = 'text/html';
-            resp.writeHead(503, { 'Content-Type': contentType });
-            resp.end();
-            return;
-        }
-        const contentType = 'application/json';
-        resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end(JSON.stringify(easMessageNoAudio()), 'utf-8');
     } else if(reqUrl.includes('sendaltcustexpmsg')) {
         sendAltCustExpMessage(queryObject.message);
-        const contentType = 'text/html';
-        resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end('Message sent');
-    } else if(reqUrl.endsWith('sendeasnoaudio')) {
-        sendEASMessageNoAudio();
-        const contentType = 'text/html';
-        resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end('Message sent');
-    } else if(reqUrl.endsWith('sendeas2')) {
-        sendEASMessage2();
-        const contentType = 'text/html';
-        resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end('Message sent');
-    } else if(reqUrl.endsWith('sendeas3')) {
-        sendEASMessage3();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -318,7 +221,10 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeas')) {
-        sendEASMessage();
+        const messageId = queryObject.messageid || `${Date.now()}`;
+        EAS_MESSAGE = queryObject.message || DEFAULT_EAS_MESSAGE;
+        EAS_AUDIO = queryObject.audio === 'true';
+        sendEASMessage(messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');

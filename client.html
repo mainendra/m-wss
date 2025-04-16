@@ -49,26 +49,20 @@
             const apiPath = update ? 'updateean' : 'sendean3';
             fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
         }
+        function sendEASMessage() {
+            const messageId = document.getElementById('eas-message-id').value || '';
+            const message = document.getElementById('eas-message').value || '';
+            const audio = document.getElementById('eas-audio').checked || false;
+            fetch('/sendeas?messageid=' + messageId + '&message=' + message + '&audio=' + audio.toString()).then(() => alert('Message sent'));
+        }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
-        }
-        function sendMessage() {
-            fetch('/sendeas').then(() => alert('Message sent'));
-        }
-        function sendMessage2() {
-            fetch('/sendeas2').then(() => alert('Message sent'));
-        }
-        function sendMessage3() {
-            fetch('/sendeas3').then(() => alert('Message sent'));
         }
         function sendMessageWrongUrl() {
             fetch('/sendeaswrongurl').then(() => alert('Message sent'));
         }
         function sendMessageCORSUrl() {
             fetch('/sendeascorsurl').then(() => alert('Message sent'));
-        }
-        function sendMessageNoAudio() {
-            fetch('/sendeasnoaudio').then(() => alert('Message sent'));
         }
         function errorWSS() {
             fetch('/errorwss').then(() => alert('Error sent'));
@@ -105,7 +99,10 @@
             margin-bottom: 10px;
         }
 
+        #altcust-container,
+        #custom-eas-container,
         #custom-ean-container {
+            gap: 5px;
             border: 1px solid black;
             display: flex;
             flex-direction: column;
@@ -125,43 +122,50 @@
         <div id="custom-ean-container">
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.m3u8" size="50" />
             <input type="text" id="message-id" placeholder="(optional) ean id" />
-            <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) expiry duration sec" />
+            <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) duration sec" />
             <button id="send-ean" onclick="sendEANMessage3()">Send EAN</button>
             <button id="update-ean" onclick="sendEANMessage3(true)">Update EAN</button>
+            <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
         </div>
-        <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
-        <button id="send-eas" onclick="sendMessage()">Send EAS</button>
-        <button id="send-eas" onclick="sendMessage2()">Send EAS 2</button>
-        <button id="send-eas" onclick="sendMessage3()">Send EAS 3</button>
-        <button id="send-eas" onclick="sendMessageWrongUrl()">Send EAS Wrong URL</button>
-        <button id="send-eas" onclick="sendMessageCORSUrl()">Send EAS CORS URL</button>
-        <button id="send-eas-no-audio" onclick="sendMessageNoAudio()">Send EAS without audio</button>
-        <button id="close-wss" onclick="errorWSS()">Send EAS error</button>
+        <div id="custom-eas-container">
+            <textarea id="ean-message" rows="4" cols="50" placeholder="(optional) message"></textarea>
+            <input type="text" id="eas-message-id" placeholder="(optional) eas id" />
+            <div>
+                <label for="eas-audio">EAS Audio?</label>
+                <input type="checkbox" id="eas-audio" />
+            </div>
+            <button id="send-eas" onclick="sendEASMessage()">Send EAS</button>
+            <button id="send-eas" onclick="sendMessageWrongUrl()">Send EAS Wrong URL</button>
+            <button id="send-eas" onclick="sendMessageCORSUrl()">Send EAS CORS URL</button>
+        </div>
+        <button id="close-wss" onclick="errorWSS()">Send WebSocket error</button>
         <button id="close-wss" onclick="closeWSS()">Close WebSocket server</button>
         <button id="close-wss" onclick="closeWSSWithError1011()">Close WebSocket server (Error 1011)</button>
         <button id="close-wss" onclick="closeWSSWithError1007()">Close WebSocket server (Error 1007)</button>
         <button id="open-wss" onclick="openWSS()">Open WebSocket server</button>
         <button id="toggle-error" onclick="toggleError()">Toggle HTTP Error</button>
         <hr/>
-        <label for="alt-cust-exp-status">ALT Cust Experience</label>
-        <select name="alt-cust-exp-status" id="alt-cust-exp-status">
-            <option value="enabled">Enabled</option>
-            <option value="pendingDisabled">Pending Disabled</option>
-            <option value="disabled">Disabled</option>
-        </select>
-        <label for="altcust-grace-period">Grace Period (Now + Seconds)</label>
-        <div id="altcust-grace-period">
-           <div>
-               <label for="altcust-grace-period-start">Start (seconds)</label>
-               <input id="altcust-grace-period-start" type="number" value="0">
-           </div>
-           <div>
-               <label for="altcust-grace-period-end">End (seconds)</label>
-               <input id="altcust-grace-period-end" type="number" value="300">
-           </div>
-           <br/>
+        <div id="altcust-container">
+            <label for="alt-cust-exp-status">ALT Cust Experience</label>
+            <select name="alt-cust-exp-status" id="alt-cust-exp-status">
+                <option value="enabled">Enabled</option>
+                <option value="pendingDisabled">Pending Disabled</option>
+                <option value="disabled">Disabled</option>
+            </select>
+            <label for="altcust-grace-period">Grace Period (Now + Seconds)</label>
+            <div id="altcust-grace-period">
+            <div>
+                <label for="altcust-grace-period-start">Start (seconds)</label>
+                <input id="altcust-grace-period-start" type="number" value="0">
+            </div>
+            <div>
+                <label for="altcust-grace-period-end">End (seconds)</label>
+                <input id="altcust-grace-period-end" type="number" value="300">
+            </div>
+            <br/>
+            </div>
+            <button id="send-alt-cust-exp-msg" onclick="sendAltCustExpMessage()">Send AltCutExpMsg</button>
         </div>
-        <button id="send-alt-cust-exp-msg" onclick="sendAltCustExpMessage()">Send AltCutExpMsg</button>
     </div>
 </body>
 </html>
