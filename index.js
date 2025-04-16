@@ -109,7 +109,7 @@ function sendEASMessageWrongUrl() {
 }
 function sendEASMessage(messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage(messageId)));
+        socket.send(JSON.stringify(easWSMessage(SERVER_URL, messageId)));
     });
 }
 function sendAltCustExpMessage(msgStr) {
