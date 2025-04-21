@@ -35,8 +35,10 @@ const easWSMessage = (serverUrl = SERVER_URL,durationMs = expiryDurationMs, mess
             Location: serverUrl + '/EAS/CAP-NET-IN-88546.json',
         },
     },
-    'message-id': messageId || `${Date.now()}`
+    'message-id': messageId || `${Date.now()}`,
     expirationTime: (new Date(Date.now() + durationMs)).getTime(),
+    type: 'Alert',
+    subType: 'eas'
 });
 const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update) => ({
     GenericMessage: {
