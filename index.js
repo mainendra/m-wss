@@ -93,7 +93,8 @@ const easMessage = (serverUrl = SERVER_URL) => ({
         parameter: [{
             valueName: 'EASText',
             value: EAS_MESSAGE + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
-        }]
+        }],
+        expires: (new Date(Date.now() + expiryDurationMs)).getTime(),
     },
 });
 
