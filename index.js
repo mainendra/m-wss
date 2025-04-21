@@ -29,13 +29,14 @@ const easWSMessageCORSUrl = (serverUrl = SERVER_URL) => ({
         },
     },
 });
-const easWSMessage = (serverUrl = SERVER_URL, messageId) => ({
+const easWSMessage = (serverUrl = SERVER_URL,durationMs = expiryDurationMs, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAS/CAP-NET-IN-88546.json',
         },
     },
     'message-id': messageId || `${Date.now()}`
+    expirationTime: (new Date(Date.now() + durationMs)).getTime(),
 });
 const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update) => ({
     GenericMessage: {
@@ -107,9 +108,9 @@ function sendEASMessageWrongUrl() {
         socket.send(JSON.stringify(easWSMessageWrongUrl()));
     });
 }
-function sendEASMessage(messageId) {
+function sendEASMessage(durationMs, messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage(SERVER_URL, messageId)));
+        socket.send(JSON.stringify(easWSMessage(SERVER_URL, durationMs, messageId)));
     });
 }
 function sendAltCustExpMessage(msgStr) {
@@ -222,9 +223,10 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeas')) {
         const messageId = queryObject.messageid || `${Date.now()}`;
+        const durationMs = parseInt(queryObject.duration) || undefined;
         EAS_MESSAGE = queryObject.message || DEFAULT_EAS_MESSAGE;
         EAS_AUDIO = queryObject.audio === 'true';
-        sendEASMessage(messageId);
+        sendEASMessage(durationMs, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');

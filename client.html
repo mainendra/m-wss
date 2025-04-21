@@ -53,7 +53,8 @@
             const messageId = document.getElementById('eas-message-id').value || '';
             const message = document.getElementById('eas-message').value || '';
             const audio = document.getElementById('eas-audio').checked || false;
-            fetch('/sendeas?messageid=' + messageId + '&message=' + message + '&audio=' + audio.toString()).then(() => alert('Message sent'));
+            const durationSec = document.getElementById('eas-expiry').value || 0;
+            fetch('/sendeas?messageid=' + messageId + '&message=' + message + '&audio=' + audio.toString() + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
         }
         function sendEANMessageWrongUrl() {
             fetch('/sendeanwrongurl').then(() => alert('Message sent'));
@@ -130,6 +131,7 @@
         <div id="custom-eas-container">
             <textarea id="eas-message" rows="4" cols="50" placeholder="(optional) message"></textarea>
             <input type="text" id="eas-message-id" placeholder="(optional) eas id" />
+            <input type="number" min="0" id="eas-expiry" defaultValue="0" placeholder="(optional) duration sec" />
             <div>
                 <label for="eas-audio">EAS Audio?</label>
                 <input type="checkbox" id="eas-audio" />
