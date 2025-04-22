@@ -6,12 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket server</title>
     <script>
+        function showToast(message) {
+            const toastContainer = document.getElementById('toast-container');
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            // Auto-remove toast after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
         function getCurrSeconds() {
             return Math.floor(Date.now() / 1000);
         }
         function updateServerUrl(noalert=false) {
             var serverUrl = document.getElementById('server-url').value;
-            fetch('?url=' + serverUrl).then(() => noalert ? 'Server URL updated' : alert('Server URL updated'));
+            fetch('?url=' + serverUrl).then(() => noalert ? 'Server URL updated' : showToast('Server URL updated'));
         }
         function updateApiConfig() {
             const apiConfigUrl = window.prompt('Please provide apiconfig url');
@@ -26,7 +40,7 @@
             });
         }
         function resetApiConfig() {
-            fetch('/resetapiconfig').then(() => alert('Message sent'));
+            fetch('/resetapiconfig').then(() => showToast('Message sent'));
         }
         function sendAltCustExpMessage() {
             const now = getCurrSeconds();
@@ -40,48 +54,48 @@
                     gracePeriodEnd: now + +document.getElementById('altcust-grace-period-end').value,
                 }
             };
-            fetch(`/sendaltcustexpmsg?message=${JSON.stringify(msg)}`).then(() => alert('Message sent'));
+            fetch(`/sendaltcustexpmsg?message=${JSON.stringify(msg)}`).then(() => showToast('Message sent'));
         }
         function sendEANMessage3(update = false) {
             const messageId = document.getElementById('message-id').value || '';
             const eanUrl = document.getElementById('ean-url').value || '';
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean' : 'sendean3';
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => alert('Message sent')).catch(err => alert(err));
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEASMessage() {
             const messageId = document.getElementById('eas-message-id').value || '';
             const message = document.getElementById('eas-message').value || '';
             const audio = document.getElementById('eas-audio').checked || false;
             const durationSec = document.getElementById('eas-expiry').value || 0;
-            fetch('/sendeas?messageid=' + messageId + '&message=' + message + '&audio=' + audio.toString() + '&duration=' + (durationSec * 1000)).then(() => alert('Message sent'));
+            fetch('/sendeas?messageid=' + messageId + '&message=' + message + '&audio=' + audio.toString() + '&duration=' + (durationSec * 1000)).then(() => showToast('Message sent'));
         }
         function sendEANMessageWrongUrl() {
-            fetch('/sendeanwrongurl').then(() => alert('Message sent'));
+            fetch('/sendeanwrongurl').then(() => showToast('Message sent'));
         }
         function sendMessageWrongUrl() {
-            fetch('/sendeaswrongurl').then(() => alert('Message sent'));
+            fetch('/sendeaswrongurl').then(() => showToast('Message sent'));
         }
         function sendMessageCORSUrl() {
-            fetch('/sendeascorsurl').then(() => alert('Message sent'));
+            fetch('/sendeascorsurl').then(() => showToast('Message sent'));
         }
         function errorWSS() {
-            fetch('/errorwss').then(() => alert('Error sent'));
+            fetch('/errorwss').then(() => showToast('Error sent'));
         }
         function closeWSS() {
-            fetch('/closewss').then(() => alert('WebSocket server closed'));
+            fetch('/closewss').then(() => showToast('WebSocket server closed'));
         }
         function closeWSSWithError1007() {
-            fetch('/closewss?error=1007').then(() => alert('WebSocket server closed'));
+            fetch('/closewss?error=1007').then(() => showToast('WebSocket server closed'));
         }
         function closeWSSWithError1011() {
-            fetch('/closewss?error=1011').then(() => alert('WebSocket server closed'));
+            fetch('/closewss?error=1011').then(() => showToast('WebSocket server closed'));
         }
         function openWSS() {
-            fetch('/openwss').then(() => alert('WebSocket server opened'));
+            fetch('/openwss').then(() => showToast('WebSocket server opened'));
         }
         function toggleError() {
-            fetch('/toggleerror').then(() => alert('Toggled server error flag'));
+            fetch('/toggleerror').then(() => showToast('Toggled server error flag'));
         }
         function onload() {
             document.getElementById('server-url').value = window.location.origin;
@@ -111,10 +125,40 @@
             padding: 5px;
             margin: 5px;
         }
+
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background-color: #333;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            min-width: 250px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateX(100%);
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 <body onload="onload()">
     <div class="container">
+        <div id="toast-container"></div>
         <label for="server-url">Server URL</label>
         <input type="text" id="server-url" placeholder="http://localhost:8989" />
         <button id="update-url" onclick="updateServerUrl()">Update Server</button>
