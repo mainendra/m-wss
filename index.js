@@ -212,7 +212,7 @@ const server = createServer((req, resp) => {
 
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end(JSON.stringify(easMessage(messageId)), 'utf-8');
+        resp.end(JSON.stringify(easMessage(SERVER_URL, messageId)), 'utf-8');
         // cleanup
         delete EAS_ID_MESSAGE_MAP[messageId];
     } else if(reqUrl.includes('sendaltcustexpmsg')) {
