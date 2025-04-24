@@ -86,7 +86,7 @@ const easMessage = (serverUrl = SERVER_URL, messageId) => ({
     info: {
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
-            uri: EAS_ID_MESSAGE_MAP[messageId]?.audio !== 'false' ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
+            uri: EAS_ID_MESSAGE_MAP[messageId]?.audio ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
             mimeType: 'audio/x-ipaws-audio-mp3',
         }],
         parameter: [{
