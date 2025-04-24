@@ -10,8 +10,7 @@ let SERVER_ERROR_ENABLED = false;
 const DEFAULT_EAN_URL = 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s/Manifest.mpd';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 let EAN_URL;
-let EAS_MESSAGE;
-let EAS_AUDIO;
+const EAS_ID_MESSAGE_MAP = {};
 
 let apiconfig;
 
@@ -32,7 +31,7 @@ const easWSMessageCORSUrl = (serverUrl = SERVER_URL) => ({
 const easWSMessage = (serverUrl = SERVER_URL,durationMs = expiryDurationMs, messageId) => ({
     GenericMessage: {
         SecureContent: {
-            Location: serverUrl + '/EAS/CAP-NET-IN-88546.json',
+            Location: serverUrl + `/EAS/CAP-NET-IN-${messageId || ''}-88546.json`,
         },
     },
     'message-id': messageId || `${Date.now()}`,
@@ -83,16 +82,16 @@ const eanMessageWrongUrl = () => ({
 });
 
 
-const easMessage = (serverUrl = SERVER_URL) => ({
+const easMessage = (serverUrl = SERVER_URL, messageId) => ({
     info: {
         resource: [{
             resourceDesc: 'EAS Broadcast Content',
-            uri: EAS_AUDIO ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
+            uri: EAS_ID_MESSAGE_MAP[messageId]?.audio !== 'false' ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
             mimeType: 'audio/x-ipaws-audio-mp3',
         }],
         parameter: [{
             valueName: 'EASText',
-            value: EAS_MESSAGE + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
+            value: (EAS_ID_MESSAGE_MAP[messageId]?.message || DEFAULT_EAS_MESSAGE) + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).getTime(),
     },
@@ -206,9 +205,16 @@ const server = createServer((req, resp) => {
             resp.end();
             return;
         }
+
+        // get messageID
+        const match = reqUrl.match(/IN-(.*?)-88546/);
+        const messageId = match?.[1];
+
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
-        resp.end(JSON.stringify(easMessage()), 'utf-8');
+        resp.end(JSON.stringify(easMessage(messageId)), 'utf-8');
+        // cleanup
+        delete EAS_ID_MESSAGE_MAP[messageId];
     } else if(reqUrl.includes('sendaltcustexpmsg')) {
         sendAltCustExpMessage(queryObject.message);
         const contentType = 'text/html';
@@ -227,8 +233,12 @@ const server = createServer((req, resp) => {
     } else if(reqUrl.endsWith('sendeas')) {
         const messageId = queryObject.messageid || `${Date.now()}`;
         const durationMs = parseInt(queryObject.duration) || undefined;
-        EAS_MESSAGE = queryObject.message || DEFAULT_EAS_MESSAGE;
-        EAS_AUDIO = queryObject.audio === 'true';
+        if (messageId) {
+            EAS_ID_MESSAGE_MAP[messageId] = {
+                message: queryObject.message || DEFAULT_EAS_MESSAGE,
+                audio: queryObject.audio === 'true',
+            };
+        }
         sendEASMessage(durationMs, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
