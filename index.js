@@ -58,7 +58,8 @@ const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     },
     expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime(),
     type: 'Alert',
-    subType: 'EAN'
+    subType: 'EAN',
+    'message-id': `${Date.now()}`
 });
 const eanMessage3 = () => ({
     info: {
