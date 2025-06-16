@@ -39,13 +39,13 @@ const easWSMessage = (serverUrl = SERVER_URL,durationMs = expiryDurationMs, mess
     type: 'Alert',
     subType: 'eas'
 });
-const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update) => ({
+const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, messageId, update, ignoreExpiry) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
         },
     },
-    expirationTime: (new Date(Date.now() + durationMs)).getTime(),
+    expirationTime: ignoreExpiry ? undefined : (new Date(Date.now() + durationMs)).getTime(),
     type: update ? 'Update' : 'Alert',
     subType: 'EAN',
     'message-id': messageId || `${Date.now()}`
@@ -121,9 +121,9 @@ function sendAltCustExpMessage(msgStr) {
         socket.send(msgStr);
     });
 }
-function sendEANMessage3(durationMs, messageId, update) {
+function sendEANMessage3(durationMs, messageId, update, ignoreExpiry) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId, update)));
+        socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId, update, ignoreExpiry)));
     });
 }
 function sendEANMessageWrongUrl() {
@@ -248,7 +248,8 @@ const server = createServer((req, resp) => {
         EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL;
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
-        sendEANMessage3(durationMs, messageId, false);
+        const ignoreExpiry = queryObject.ignoreExpiry === 'true';
+        sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -256,7 +257,8 @@ const server = createServer((req, resp) => {
         EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL;
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
-        sendEANMessage3(durationMs, messageId, true);
+        const ignoreExpiry = queryObject.ignoreExpiry === 'true';
+        sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');

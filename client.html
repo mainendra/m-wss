@@ -61,7 +61,8 @@
             const eanUrl = document.getElementById('ean-url').value || '';
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean' : 'sendean3';
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId).then(() => showToast('Message sent')).catch(err => showToast(err));
+            const ignoreExpiry = document.getElementById('ignore-ean-expiry').checked || false;
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEASMessage() {
             const messageId = document.getElementById('eas-message-id').value || '';
@@ -168,6 +169,10 @@
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.m3u8" size="50" />
             <input type="text" id="message-id" placeholder="(optional) ean id" />
             <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) duration sec" />
+            <div>
+                <label for="ignore-ean-expiry">Ignore EAN Expiry?</label>
+                <input type="checkbox" id="ignore-ean-expiry" />
+            </div>
             <button id="send-ean" onclick="sendEANMessage3()">Send EAN</button>
             <button id="update-ean" onclick="sendEANMessage3(true)">Update EAN</button>
             <button id="send-ean" onclick="sendEANMessageWrongUrl()">Send EAN Wrong URL</button>
