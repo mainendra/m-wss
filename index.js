@@ -11,6 +11,15 @@ const DEFAULT_EAN_URL = 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/tes
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 let EAN_URL;
 const EAS_ID_MESSAGE_MAP = {};
+const cleanupExpiredMessages = () => {
+    const now = Date.now();
+
+    Object.entries(EAS_ID_MESSAGE_MAP).forEach(([key, value]) => {
+        if (value.expirationTime <= now) {
+            delete EAS_ID_MESSAGE_MAP[key];
+        }
+    });
+};
 
 let apiconfig;
 
@@ -28,14 +37,14 @@ const easWSMessageCORSUrl = (serverUrl = SERVER_URL) => ({
         },
     },
 });
-const easWSMessage = (serverUrl = SERVER_URL,durationMs = expiryDurationMs, messageId) => ({
+const easWSMessage = (serverUrl = SERVER_URL,expirationTime, messageId) => ({
     GenericMessage: {
         SecureContent: {
             Location: serverUrl + `/EAS/CAP-NET-IN-${messageId || ''}-88546.json`,
         },
     },
     'message-id': messageId || `${Date.now()}`,
-    expirationTime: (new Date(Date.now() + durationMs)).getTime(),
+    expirationTime,
     type: 'Alert',
     subType: 'eas'
 });
@@ -111,9 +120,9 @@ function sendEASMessageWrongUrl() {
         socket.send(JSON.stringify(easWSMessageWrongUrl()));
     });
 }
-function sendEASMessage(durationMs, messageId) {
+function sendEASMessage(expirationTime, messageId) {
     wss.clients.forEach(socket => {
-        socket.send(JSON.stringify(easWSMessage(SERVER_URL, durationMs, messageId)));
+        socket.send(JSON.stringify(easWSMessage(SERVER_URL, expirationTime, messageId)));
     });
 }
 function sendAltCustExpMessage(msgStr) {
@@ -215,7 +224,7 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end(JSON.stringify(easMessage(SERVER_URL, messageId)), 'utf-8');
         // cleanup
-        delete EAS_ID_MESSAGE_MAP[messageId];
+        cleanupExpiredMessages();
     } else if(reqUrl.includes('sendaltcustexpmsg')) {
         sendAltCustExpMessage(queryObject.message);
         const contentType = 'text/html';
@@ -234,13 +243,15 @@ const server = createServer((req, resp) => {
     } else if(reqUrl.endsWith('sendeas')) {
         const messageId = queryObject.messageid || `${Date.now()}`;
         const durationMs = parseInt(queryObject.duration) || undefined;
+        const expirationTime = (new Date(Date.now() + (durationMs || expiryDurationMs))).getTime();
         if (messageId) {
             EAS_ID_MESSAGE_MAP[messageId] = {
                 message: queryObject.message || DEFAULT_EAS_MESSAGE,
                 audio: queryObject.audio === 'true',
+                expirationTime,
             };
         }
-        sendEASMessage(durationMs, messageId);
+        sendEASMessage(expirationTime, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
