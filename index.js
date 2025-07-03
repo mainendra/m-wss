@@ -8,6 +8,7 @@ const expiryDurationMs = 60 * 1000;
 let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
 const DEFAULT_EAN_URL = 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s/Manifest.mpd';
+const DEFAULT_EAN_URL2 = 'https://dash.akamaized.net/dash264/TestCasesHD/2b/DTV/1/live.mpd';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 let EAN_URL;
 const EAS_ID_MESSAGE_MAP = {};
