@@ -274,6 +274,24 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
+    } else if(reqUrl.endsWith('sendean32')) {
+        EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL2;
+        const durationMs = parseInt(queryObject.duration) || undefined;
+        const messageId = queryObject.messageid;
+        const ignoreExpiry = queryObject.ignoreExpiry === 'true';
+        sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('updateean2')) {
+        EAN_URL = queryObject.eanurl || DEFAULT_EAN_URL2;
+        const durationMs = parseInt(queryObject.duration) || undefined;
+        const messageId = queryObject.messageid;
+        const ignoreExpiry = queryObject.ignoreExpiry === 'true';
+        sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeanwrongurl')) {
         sendEANMessageWrongUrl();
         const contentType = 'text/html';
