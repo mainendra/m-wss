@@ -62,7 +62,8 @@
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean' : 'sendean3';
             const ignoreExpiry = document.getElementById('ignore-ean-expiry').checked || false;
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
+            const useHLS = document.getElementById('use-hls').checked || false;
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&useHLS=' + useHLS + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEANMessage32(update = false) {
             const messageId = document.getElementById('message-id').value || '';
@@ -70,7 +71,8 @@
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean2' : 'sendean32';
             const ignoreExpiry = document.getElementById('ignore-ean-expiry').checked || false;
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
+            const useHLS = document.getElementById('use-hls').checked || false;
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&useHLS=' + useHLS + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEASMessage() {
             const messageId = document.getElementById('eas-message-id').value || '';
@@ -177,6 +179,10 @@
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.mpd" size="50" />
             <input type="text" id="message-id" placeholder="(optional) ean id" />
             <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) duration sec" />
+            <div>
+                <label for="use-hls">use HLS?</label>
+                <input type="checkbox" id="use-hls" />
+            </div>
             <div>
                 <label for="ignore-ean-expiry">Ignore EAN Expiry?</label>
                 <input type="checkbox" id="ignore-ean-expiry" />
