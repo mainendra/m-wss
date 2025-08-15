@@ -18,7 +18,7 @@ const cleanupExpiredMessages = () => {
     const now = Date.now();
 
     Object.entries(EAS_ID_MESSAGE_MAP).forEach(([key, value]) => {
-        if (value.expirationTime <= now) {
+        if ((value.expirationTime * 1000) <= now) {
             delete EAS_ID_MESSAGE_MAP[key];
         }
     });
@@ -57,7 +57,7 @@ const eanWSMessage3 = (serverUrl = SERVER_URL, durationMs = expiryDurationMs, me
             Location: serverUrl + '/EAN/CAP-NET-IN-99000.json',
         },
     },
-    expirationTime: ignoreExpiry ? undefined : (new Date(Date.now() + durationMs)).getTime(),
+    expirationTime: ignoreExpiry ? undefined : Math.round((new Date(Date.now() + durationMs)).getTime() / 1000),
     type: update ? 'Update' : 'Alert',
     subType: 'EAN',
     'message-id': messageId || `${Date.now()}`
@@ -68,7 +68,7 @@ const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
             Location: serverUrl + '/EAN/CAP-NET-IN-88444_WrongUrl.json',
         },
     },
-    expirationTime: (new Date(Date.now() + expiryDurationMs)).getTime(),
+    expirationTime: Math.round((new Date(Date.now() + expiryDurationMs)).getTime() / 1000),
     type: 'Alert',
     subType: 'EAN',
     'message-id': `${Date.now()}`
@@ -246,7 +246,7 @@ const server = createServer((req, resp) => {
     } else if(reqUrl.endsWith('sendeas')) {
         const messageId = queryObject.messageid || `${Date.now()}`;
         const durationMs = parseInt(queryObject.duration) || undefined;
-        const expirationTime = (new Date(Date.now() + (durationMs || expiryDurationMs))).getTime();
+        const expirationTime = Math.round((new Date(Date.now() + (durationMs || expiryDurationMs))).getTime() / 1000);
         if (messageId) {
             EAS_ID_MESSAGE_MAP[messageId] = {
                 message: queryObject.message || DEFAULT_EAS_MESSAGE,
