@@ -80,7 +80,7 @@ const eanMessage3 = () => ({
             uri: EAN_URL,
             mimeType: MIME_TYPE,
         }],
-        expires: (new Date(Date.now() + expiryDurationMs)).getTime()
+        expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
     },
 });
 const eanMessageWrongUrl = () => ({
@@ -90,7 +90,7 @@ const eanMessageWrongUrl = () => ({
             uri: 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s8989/Manifest.mpd',
             mimeType: MIME_TYPE,
         }],
-        expires: (new Date(Date.now() + expiryDurationMs)).getTime()
+        expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
     },
 });
 
@@ -106,7 +106,7 @@ const easMessage = (serverUrl = SERVER_URL, messageId) => ({
             valueName: 'EASText',
             value: (EAS_ID_MESSAGE_MAP[messageId]?.message || DEFAULT_EAS_MESSAGE) + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
         }],
-        expires: (new Date(Date.now() + expiryDurationMs)).getTime(),
+        expires: (new Date(Date.now() + expiryDurationMs)).toISOString(),
     },
 });
 
