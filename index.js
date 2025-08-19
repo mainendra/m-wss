@@ -9,7 +9,8 @@ let SERVER_URL = process.env.SERVER_URL || 'http://localhost:8989';
 let SERVER_ERROR_ENABLED = false;
 const DEFAULT_EAN_URL = 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s/Manifest.mpd';
 const DEFAULT_EAN_URL2 = 'https://dash.akamaized.net/dash264/TestCasesHD/2b/DTV/1/live.mpd';
-const DEFAULT_EAN_URL_HLS = 'https://ireplay.tv/test/blender.m3u8';
+const DEFAULT_EAN_URL_HLS = 'https://stream-akamai.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
+const DEFAULT_EAN_URL_HLS2 = 'https://stream-fastly.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 let EAN_URL;
 let MIME_TYPE;
@@ -282,7 +283,7 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean32')) {
         const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS : DEFAULT_EAN_URL2);
+        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS2 : DEFAULT_EAN_URL2);
         MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
@@ -293,7 +294,7 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('updateean2')) {
         const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS : DEFAULT_EAN_URL2);
+        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS2 : DEFAULT_EAN_URL2);
         MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
