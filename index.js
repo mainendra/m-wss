@@ -12,9 +12,37 @@ const DEFAULT_EAN_URL2 = 'https://dash.akamaized.net/dash264/TestCasesHD/2b/DTV/
 const DEFAULT_EAN_URL_HLS = 'https://stream-akamai.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
 const DEFAULT_EAN_URL_HLS2 = 'https://stream-fastly.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
-let EAN_URL;
-let MIME_TYPE;
+
+let EAN_RESOURCES;
+const EAN_RESOURCE1 = [{
+    resourceDesc: 'EAN DASH Content',
+    uri: DEFAULT_EAN_URL,
+    mimeType: 'video/DASH',
+}, {
+    resourceDesc: 'EAN HLS Content',
+    uri: DEFAULT_EAN_URL_HLS,
+    mimeType: 'video/HLS',
+}];
+const EAN_RESOURCE2 = [{
+    resourceDesc: 'EAN DASH Content',
+    uri: DEFAULT_EAN_URL2,
+    mimeType: 'video/DASH',
+}, {
+    resourceDesc: 'EAN HLS Content',
+    uri: DEFAULT_EAN_URL_HLS2,
+    mimeType: 'video/HLS',
+}];
+const updateEANResource = (uri = '') => {
+    const hls = url.toLowerCase().includes('.m3u8');
+    EAN_RESOURCES = [{
+        resourceDesc: 'EAN Content',
+        uri,
+        mimeType: hls ? 'video/HLS' : 'video/DASH'
+    }];
+}
+
 const EAS_ID_MESSAGE_MAP = {};
+
 const cleanupExpiredMessages = () => {
     const now = Date.now();
 
@@ -76,11 +104,7 @@ const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
 });
 const eanMessage3 = () => ({
     info: {
-        resource: [{
-            resourceDesc: 'EAN DASH Content',
-            uri: EAN_URL,
-            mimeType: MIME_TYPE,
-        }],
+        resource: EAN_RESOURCES,
         expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
     },
 });
@@ -88,8 +112,12 @@ const eanMessageWrongUrl = () => ({
     info: {
         resource: [{
             resourceDesc: 'EAN DASH Content',
-            uri: 'https://livesim.dashif.org/livesim/chunkdur_1/ato_7/testpic4_8s8989/Manifest.mpd',
-            mimeType: MIME_TYPE,
+            uri: 'https://livesim.dashif.org/livesim/chunkdur/ato_7/testpic4_8s8989/Manifest.mpd',
+            mimeType: 'video/DASH',
+        }, {
+            resourceDesc: 'EAN HLS Content',
+            uri: 'https://stream-akamai.castr.com/wrong_url/index.fmp4.m3u8',
+            mimeType: 'video/HLS',
         }],
         expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
     },
@@ -193,7 +221,7 @@ const server = createServer((req, resp) => {
         resp.end();
         return;
     } else if(reqUrl.endsWith('99000.json')) {
-        if (SERVER_ERROR_ENABLED || !EAN_URL) {
+        if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
             resp.writeHead(503, { 'Content-Type': contentType });
             resp.end();
@@ -260,9 +288,11 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean3')) {
-        const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS : DEFAULT_EAN_URL);
-        MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
+        if (queryObject.eanurl) {
+            updateEANResource(queryObject.eanurl);
+        } else {
+            EAN_RESOURCES = EAN_RESOURCE1;
+        }
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
@@ -271,9 +301,11 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('updateean')) {
-        const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS : DEFAULT_EAN_URL);
-        MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
+        if (queryObject.eanurl) {
+            updateEANResource(queryObject.eanurl);
+        } else {
+            EAN_RESOURCES = EAN_RESOURCE1;
+        }
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
@@ -282,9 +314,11 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendean32')) {
-        const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS2 : DEFAULT_EAN_URL2);
-        MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
+        if (queryObject.eanurl) {
+            updateEANResource(queryObject.eanurl);
+        } else {
+            EAN_RESOURCES = EAN_RESOURCE2;
+        }
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
@@ -293,9 +327,11 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('updateean2')) {
-        const useHLS = queryObject.useHLS === 'true';
-        EAN_URL = queryObject.eanurl || (useHLS ? DEFAULT_EAN_URL_HLS2 : DEFAULT_EAN_URL2);
-        MIME_TYPE = useHLS ? 'video/HLS' : 'video/DASH';
+        if (queryObject.eanurl) {
+            updateEANResource(queryObject.eanurl);
+        } else {
+            EAN_RESOURCES = EAN_RESOURCE2;
+        }
         const durationMs = parseInt(queryObject.duration) || undefined;
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
@@ -334,6 +370,13 @@ const server = createServer((req, resp) => {
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
         const file = readFileSync('./client.html', 'utf8');
+        resp.end(file, 'utf-8');
+    } else if(reqUrl.endsWith('apiconfiglist.json')) {
+        // server html file
+        const contentType = 'application/json';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        // read file
+        const file = readFileSync('./apiconfiglist.json', 'utf8');
         resp.end(file, 'utf-8');
     } else if(reqUrl.endsWith('resetapiconfig')) {
         apiconfig = null;

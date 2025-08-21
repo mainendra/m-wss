@@ -29,6 +29,12 @@
         }
         function updateApiConfig() {
             const apiConfigUrl = window.prompt('Please provide apiconfig url');
+            fetchAndUpdateApiConfig(apiConfigUrl);
+        }
+        function selectApiConfig() {
+            fetchAndUpdateApiConfig(document.getElementById("apiconfig-select").value);
+        }
+        function fetchAndUpdateApiConfig(apiConfigUrl) {
             fetch(apiConfigUrl).then(resp => resp.json()).then(data => {
                 try {
                     var serverUrl = new URL(document.getElementById('server-url').value);
@@ -62,8 +68,7 @@
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean' : 'sendean3';
             const ignoreExpiry = document.getElementById('ignore-ean-expiry').checked || false;
-            const useHLS = document.getElementById('use-hls').checked || false;
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&useHLS=' + useHLS + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEANMessage32(update = false) {
             const messageId = document.getElementById('message-id').value || '';
@@ -71,8 +76,7 @@
             const durationSec = document.getElementById('ean-expiry').value || 0;
             const apiPath = update ? 'updateean2' : 'sendean32';
             const ignoreExpiry = document.getElementById('ignore-ean-expiry').checked || false;
-            const useHLS = document.getElementById('use-hls').checked || false;
-            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&useHLS=' + useHLS + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
+            fetch('/' + apiPath + '?eanurl=' + eanUrl + '&duration=' + (durationSec * 1000) + '&messageid=' + messageId + '&ignoreExpiry=' + ignoreExpiry).then(() => showToast('Message sent')).catch(err => showToast(err));
         }
         function sendEASMessage() {
             const messageId = document.getElementById('eas-message-id').value || '';
@@ -170,19 +174,40 @@
 <body onload="onload()">
     <div class="container">
         <div id="toast-container"></div>
-        <label for="server-url">Server URL</label>
-        <input type="text" id="server-url" placeholder="http://localhost:8989" />
-        <button id="update-url" onclick="updateServerUrl()">Update Server</button>
-        <button id="update-apiconfig" onclick="updateApiConfig()">Update ApiConfig</button>
+        <div>
+            <label for="server-url">Server URL</label>
+            <input type="text" id="server-url" placeholder="http://localhost:8989" />
+        </div>
+        <br/>
+        <!-- <button id="update-url" onclick="updateServerUrl()">Update Server</button> -->
+        <div
+            <label for="apiconfig-select">Select ApiConfig URL</label>
+            <select id="apiconfig-select" onchange="selectApiConfig()"></select>
+            <script>
+            // Load JSON file
+            fetch("apiconfiglist.json")
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById("apiconfig-select");
+                    const firstEntry = { title: '-- select --', url: '' };
+                    // Create options from JSON
+                    ([firstEntry, ...(data ?? [])]).forEach(item => {
+                        const option = document.createElement("option");
+                        option.value = item.url;     // URL goes in value
+                        option.textContent = item.title; // Title is visible
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error("Error loading JSON:", error));
+            </script>
+        </div>
+        <br/>
+        <button id="update-apiconfig" onclick="updateApiConfig()">Custom ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
         <div id="custom-ean-container">
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.mpd" size="50" />
             <input type="text" id="message-id" placeholder="(optional) ean id" />
             <input type="number" min="0" id="ean-expiry" defaultValue="0" placeholder="(optional) duration sec" />
-            <div>
-                <label for="use-hls">use HLS?</label>
-                <input type="checkbox" id="use-hls" />
-            </div>
             <div>
                 <label for="ignore-ean-expiry">Ignore EAN Expiry?</label>
                 <input type="checkbox" id="ignore-ean-expiry" />
