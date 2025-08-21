@@ -31,9 +31,6 @@
             const apiConfigUrl = window.prompt('Please provide apiconfig url');
             fetchAndUpdateApiConfig(apiConfigUrl);
         }
-        function selectApiConfig() {
-            fetchAndUpdateApiConfig(document.getElementById("apiconfig-select").value);
-        }
         function fetchAndUpdateApiConfig(apiConfigUrl) {
             fetch(apiConfigUrl).then(resp => resp.json()).then(data => {
                 try {
@@ -179,30 +176,7 @@
             <input type="text" id="server-url" placeholder="http://localhost:8989" />
         </div>
         <br/>
-        <!-- <button id="update-url" onclick="updateServerUrl()">Update Server</button> -->
-        <div
-            <label for="apiconfig-select">Select ApiConfig URL</label>
-            <select id="apiconfig-select" onchange="selectApiConfig()"></select>
-            <script>
-            // Load JSON file
-            fetch("apiconfiglist.json")
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById("apiconfig-select");
-                    const firstEntry = { title: '-- select --', url: '' };
-                    // Create options from JSON
-                    ([firstEntry, ...(data ?? [])]).forEach(item => {
-                        const option = document.createElement("option");
-                        option.value = item.url;     // URL goes in value
-                        option.textContent = item.title; // Title is visible
-                        select.appendChild(option);
-                    });
-                })
-                .catch(error => console.error("Error loading JSON:", error));
-            </script>
-        </div>
-        <br/>
-        <button id="update-apiconfig" onclick="updateApiConfig()">Custom ApiConfig</button>
+        <button id="update-apiconfig" onclick="updateApiConfig()">Update default ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
         <div id="custom-ean-container">
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.mpd" size="50" />

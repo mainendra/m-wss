@@ -399,7 +399,7 @@ const server = createServer((req, resp) => {
         });
     } else if(reqUrl.endsWith('apiconfig') && (apiconfig || existsSync('./apiconfig.json'))) {
         // server html file
-        const contentType = 'text/html';
+        const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
         // read file
         const file = apiconfig || readFileSync('./apiconfig.json', 'utf8');
@@ -409,6 +409,38 @@ const server = createServer((req, resp) => {
         apiconfigJson.services.vpns.endpoints.socketSubscribe.host = (new URL(SERVER_URL)).host;
 
         resp.end(JSON.stringify(apiconfigJson), 'utf-8');
+    } else if(reqUrl.endsWith('apiconfiglist') && existsSync('./apiconfiglist.json')) {
+        // server html file
+        const contentType = 'application/json';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        // read file
+        const file = readFileSync('./apiconfiglist.json', 'utf8');
+        let configlist = JSON.parse(file);
+        configlist = configlist.map(config => {
+            return {
+                title: config.title,
+                newURL: SERVER_URL + '/apiconfig' + config.pathname,
+                originalURL: config.url,
+            };
+        });
+        resp.end(JSON.stringify(configlist, null, 2), 'utf-8');
+    } else if (reqUrl.includes('/apiconfig/') && existsSync('./apiconfiglist.json')) {
+        // server html file
+        const contentType = 'application/json';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        // read file
+        const apiconfiglistfile = readFileSync('./apiconfiglist.json', 'utf8');
+        const pathname = '/' + reqUrl.split('/').pop();
+        const apiconfigurl = JSON.parse(apiconfiglistfile).find(config => config.pathname === pathname)?.url;
+
+        if (apiconfigurl) {
+            fetch(apiconfigurl).then(resp => resp.json()).then(apiconfigJson => {
+                apiconfigJson.services.vpns.endpoints.socketSubscribe.host = (new URL(SERVER_URL)).host;
+                resp.end(JSON.stringify(apiconfigJson), 'utf-8');
+            });
+        } else {
+            resp.end(JSON.stringify({}), 'utf-8');
+        }
     } else if(reqUrl.endsWith('.mp3')) {
         // server mp3 file
         const contentType = 'audio/mpeg';
