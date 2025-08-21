@@ -371,7 +371,7 @@ const server = createServer((req, resp) => {
         // read file
         const file = readFileSync('./client.html', 'utf8');
         resp.end(file, 'utf-8');
-    } else if(reqUrl.endsWith('apiconfiglist.json')) {
+    } else if(reqUrl.endsWith('apiconfiglist.json') && existsSync('./apiconfiglist.json')) {
         // server html file
         const contentType = 'application/json';
         resp.writeHead(200, { 'Content-Type': contentType });
