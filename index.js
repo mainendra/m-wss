@@ -13,6 +13,16 @@ const DEFAULT_EAN_URL_HLS = 'https://stream-akamai.castr.com/5b9352dbda7b8c76993
 const DEFAULT_EAN_URL_HLS2 = 'https://stream-fastly.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 
+let DEFAULT_EAN = { info: {} };
+let DEFAULT_EAS = { info: {} };
+
+if (existsSync('./ean.json')) {
+    DEFAULT_EAN = JSON.parse(readFileSync('./ean.json', 'utf8'));
+}
+if (existsSync('./eas.json')) {
+    DEFAULT_EAS = JSON.parse(readFileSync('./eas.json', 'utf8'));
+}
+
 let EAN_RESOURCES;
 const EAN_RESOURCE1 = [{
     resourceDesc: 'EAN DASH Content',
@@ -102,42 +112,39 @@ const eanWSMessageWrongUrl = (serverUrl = SERVER_URL) => ({
     subType: 'EAN',
     'message-id': `${Date.now()}`
 });
-const eanMessage3 = () => ({
-    info: {
-        resource: EAN_RESOURCES,
-        expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
-    },
-});
-const eanMessageWrongUrl = () => ({
-    info: {
-        resource: [{
-            resourceDesc: 'EAN DASH Content',
-            uri: 'https://livesim.dashif.org/livesim/chunkdur/ato_7/testpic4_8s8989/Manifest.mpd',
-            mimeType: 'video/DASH',
-        }, {
+const eanMessage3 = () => {
+    DEFAULT_EAN.info.resource = EAN_RESOURCES;
+    DEFAULT_EAN.info.expires = (new Date(Date.now() + expiryDurationMs)).toISOString();
+    return DEFAULT_EAN;
+};
+const eanMessageWrongUrl = () => {
+    DEFAULT_EAN.info.resource = [{
+        resourceDesc: 'EAN DASH Content',
+        uri: 'https://livesim.dashif.org/livesim/chunkdur/ato_7/testpic4_8s8989/Manifest.mpd',
+        mimeType: 'video/DASH',
+    }, {
             resourceDesc: 'EAN HLS Content',
             uri: 'https://stream-akamai.castr.com/wrong_url/index.fmp4.m3u8',
             mimeType: 'video/HLS',
-        }],
-        expires: (new Date(Date.now() + expiryDurationMs)).toISOString()
-    },
-});
+        }];
+    DEFAULT_EAN.info.expires = (new Date(Date.now() + expiryDurationMs)).toISOString();
+    return DEFAULT_EAN;
+};
 
 
-const easMessage = (serverUrl = SERVER_URL, messageId) => ({
-    info: {
-        resource: [{
-            resourceDesc: 'EAS Broadcast Content',
-            uri: EAS_ID_MESSAGE_MAP[messageId]?.audio ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
-            mimeType: 'audio/x-ipaws-audio-mp3',
-        }],
-        parameter: [{
-            valueName: 'EASText',
-            value: (EAS_ID_MESSAGE_MAP[messageId]?.message || DEFAULT_EAS_MESSAGE) + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
-        }],
-        expires: (new Date(Date.now() + expiryDurationMs)).toISOString(),
-    },
-});
+const easMessage = (serverUrl = SERVER_URL, messageId) => {
+    DEFAULT_EAS.info.resource = [{
+        resourceDesc: 'EAS Broadcast Content',
+        uri: EAS_ID_MESSAGE_MAP[messageId]?.audio ? serverUrl + '/EAS3/cap_eas_alert_audio_70815.mp3' : '',
+        mimeType: 'audio/x-ipaws-audio-mp3',
+    }];
+    DEFAULT_EAS.info.parameter = [{
+        valueName: 'EASText',
+        value: (EAS_ID_MESSAGE_MAP[messageId]?.message || DEFAULT_EAS_MESSAGE) + ' - ' + (new Date(Date.now() + expiryDurationMs)).toUTCString(),
+    }];
+    DEFAULT_EAS.info.expires = (new Date(Date.now() + expiryDurationMs)).toISOString();
+    return DEFAULT_EAS;
+};
 
 let wss;
 let allWSConnection = true;
