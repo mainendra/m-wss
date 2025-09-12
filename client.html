@@ -23,6 +23,11 @@
         function getCurrSeconds() {
             return Math.floor(Date.now() / 1000);
         }
+        function updateLastMessageFlag() {
+            const enable = document.getElementById('repeat-last-message').checked || false;
+            const url = enable ? '/enablelastmessage' : '/disablelastmessage';
+            fetch(url);
+        }
         function updateServerUrl(noalert=false) {
             var serverUrl = document.getElementById('server-url').value;
             fetch('?url=' + serverUrl).then(() => noalert ? 'Server URL updated' : showToast('Server URL updated'));
@@ -178,6 +183,10 @@
         <br/>
         <button id="update-apiconfig" onclick="updateApiConfig()">Update default ApiConfig</button>
         <button id="update-apiconfig" onclick="resetApiConfig()">Reset ApiConfig</button>
+        <div>
+            <label for="repeat-last-message">Repeat last message (EAN/EAS) on connection?</label>
+            <input type="checkbox" id="repeat-last-message" onchange="updateLastMessageFlag()" />
+        </div>
         <div id="custom-ean-container">
             <input type="text" id="ean-url" placeholder="(optional) http://ean/manifest.mpd" size="50" />
             <input type="text" id="message-id" placeholder="(optional) ean id" />

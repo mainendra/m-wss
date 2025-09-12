@@ -13,6 +13,9 @@ const DEFAULT_EAN_URL_HLS = 'https://stream-akamai.castr.com/5b9352dbda7b8c76993
 const DEFAULT_EAN_URL_HLS2 = 'https://stream-fastly.castr.com/5b9352dbda7b8c769937e459/live_2361c920455111ea85db6911fe397b9e/index.fmp4.m3u8';
 const DEFAULT_EAS_MESSAGE = 'A broadcast or cable system has issued A REQUIRED WEEKLY TEST for the following counties/areas: Broomfield, CO; at 8:23 PM on NOV 12, 2018 Effective until 8:38 PM. Message from WCOL. testing product - 11-12-2018testing product - 11-12-2018';
 
+let repeatLastMessageOnConnect = false;
+let lastMessageFn = () => {};
+
 let DEFAULT_EAN = { info: {} };
 let DEFAULT_EAS = { info: {} };
 
@@ -271,11 +274,13 @@ const server = createServer((req, resp) => {
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeascorsurl')) {
         sendEASMessageCORSUrl();
+        lastMessageFn = sendEASMessageCORSUrl();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeaswrongurl')) {
         sendEASMessageWrongUrl();
+        lastMessageFn = () => sendEASMessageWrongUrl();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -291,6 +296,7 @@ const server = createServer((req, resp) => {
             };
         }
         sendEASMessage(expirationTime, messageId);
+        lastMessageFn = () => sendEASMessage(expirationTime, messageId);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -304,6 +310,7 @@ const server = createServer((req, resp) => {
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
         sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
+        lastMessageFn = () => sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -317,6 +324,7 @@ const server = createServer((req, resp) => {
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
         sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
+        lastMessageFn = () => sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -330,6 +338,7 @@ const server = createServer((req, resp) => {
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
         sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
+        lastMessageFn = sendEANMessage3(durationMs, messageId, false, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -343,11 +352,13 @@ const server = createServer((req, resp) => {
         const messageId = queryObject.messageid;
         const ignoreExpiry = queryObject.ignoreExpiry === 'true';
         sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
+        lastMessageFn = () => sendEANMessage3(durationMs, messageId, true, ignoreExpiry);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
     } else if(reqUrl.endsWith('sendeanwrongurl')) {
         sendEANMessageWrongUrl();
+        lastMessageFn = () => sendEANMessageWrongUrl();
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
@@ -461,6 +472,16 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
+    } else if(reqUrl.endsWith('enablelastmessage')) {
+        repeatLastMessageOnConnect = true;
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if(reqUrl.endsWith('disablelastmessage')) {
+        repeatLastMessageOnConnect = false;
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
     } else {
         if (SERVER_ERROR_ENABLED) {
             const contentType = 'text/html';
@@ -476,11 +497,14 @@ const server = createServer((req, resp) => {
 
 wss = new WebSocketServer({ server, clientTracking: true });
 
-// wss.on('connection', function connection(ws) {
-//     ws.on('message', function incoming(message) {
-//         console.log('received: %s', message);
-//     });
-// });
+wss.on('connection', function connection(ws) {
+    if (repeatLastMessageOnConnect && (typeof lastMessageFn) === 'function') {
+        lastMessageFn();
+    }
+    // ws.on('message', function incoming(message) {
+    //     console.log('received: %s', message);
+    // });
+});
 
 wss.shouldHandle = () => allWSConnection;
 
