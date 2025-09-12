@@ -46,7 +46,7 @@ const EAN_RESOURCE2 = [{
     mimeType: 'video/HLS',
 }];
 const updateEANResource = (uri = '') => {
-    const hls = url.toLowerCase().includes('.m3u8');
+    const hls = uri.toLowerCase().includes('.m3u8');
     EAN_RESOURCES = [{
         resourceDesc: 'EAN Content',
         uri,
