@@ -118,6 +118,55 @@
             document.getElementById('server-url').value = window.location.origin;
             updateServerUrl(true);
         }
+
+        function addLMSRow() {
+            const container = document.getElementById('lms-rows-container');
+
+            const row = document.createElement('div');
+            row.className = 'lms-input-row';
+
+            const textInput = document.createElement('input');
+            textInput.type = 'text';
+            textInput.placeholder = 'endpoint name';
+
+            const numberInput = document.createElement('input');
+            numberInput.type = 'number';
+            numberInput.placeholder = 'expiry duration sec';
+
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '❌ Remove';
+            removeBtn.onclick = () => row.remove();
+
+            row.appendChild(textInput);
+            row.appendChild(numberInput);
+            row.appendChild(removeBtn);
+
+            container.appendChild(row);
+        }
+
+        function sendLMSMessage() {
+            const container = document.getElementById('lms-rows-container');
+            const rows = container.querySelectorAll('.lms-input-row');
+            const endpoints = {};
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                const endpoint = inputs[0].value.trim();
+                const number = parseFloat(inputs[1].value || 0);
+                endpoints[endpoint] = Date.now() + (number * 1000);
+            });
+
+            const lmsMessage = {
+                'message-correlation-id': '0f787411-761b-4f4d-8e14-c17fffdf506b',
+                type: 'ManifestEndpoint',
+                publisherId : 'Lantern',
+                message: {
+                    endpoints
+                }
+            };
+
+            fetch(`/sendlms?message=${JSON.stringify(lmsMessage)}`).then(() => showToast('Message sent'));
+        }
     </script>
     <style>
         .container {
@@ -131,6 +180,7 @@
             margin-bottom: 10px;
         }
 
+        #lms-container,
         #altcust-container,
         #custom-eas-container,
         #custom-ean-container {
@@ -240,6 +290,13 @@
             <br/>
             </div>
             <button id="send-alt-cust-exp-msg" onclick="sendAltCustExpMessage()">Send AltCutExpMsg</button>
+        </div>
+        <div id="lms-container">
+            <div>LMS websocket</div>
+            <div id="lms-rows-container">
+            </div>
+            <button id="add-row" onclick="addLMSRow()">➕ Add Row</button>
+            <button id="send-lms-msg" onclick="sendLMSMessage()">Send Msg</button>
         </div>
     </div>
 </body>

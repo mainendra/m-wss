@@ -172,6 +172,11 @@ function sendAltCustExpMessage(msgStr) {
         socket.send(msgStr);
     });
 }
+function sendLMSMessage(msgStr) {
+    wss.clients.forEach(socket => {
+        socket.send(msgStr);
+    });
+}
 function sendEANMessage3(durationMs, messageId, update, ignoreExpiry) {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId, update, ignoreExpiry)));
@@ -269,6 +274,11 @@ const server = createServer((req, resp) => {
         cleanupExpiredMessages();
     } else if(reqUrl.includes('sendaltcustexpmsg')) {
         sendAltCustExpMessage(queryObject.message);
+        const contentType = 'text/html';
+        resp.writeHead(200, { 'Content-Type': contentType });
+        resp.end('Message sent');
+    } else if (reqUrl.includes('sendlms')) {
+        sendLMSMessage(queryObject.message);
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
