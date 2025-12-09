@@ -167,6 +167,50 @@
 
             fetch(`/sendlms?message=${JSON.stringify(lmsMessage)}`).then(() => showToast('Message sent'));
         }
+
+        function sendGenericMessage() {
+            const jsonInput = document.getElementById('generic-json-input').value;
+
+            try {
+                // Validate JSON
+                const parsed = JSON.parse(jsonInput);
+
+                fetch('/sendgeneric', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: jsonInput
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showToast('Message sent');
+                    } else {
+                        return response.text().then(text => {
+                            console.error('[Generic Message] Server error:', text);
+                            showToast('Error: ' + text);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('[Generic Message] Network error:', err);
+                    showToast('Error: ' + err.message);
+                });
+            } catch (error) {
+                console.error('[Generic Message] Invalid JSON:', error.message);
+                showToast('Invalid JSON: ' + error.message);
+            }
+        }
+
+        function formatJSON() {
+            const jsonInput = document.getElementById('generic-json-input');
+            try {
+                const parsed = JSON.parse(jsonInput.value);
+                jsonInput.value = JSON.stringify(parsed, null, 2);
+            } catch (error) {
+                showToast('Invalid JSON: ' + error.message);
+            }
+        }
     </script>
     <style>
         .container {
@@ -183,7 +227,8 @@
         #lms-container,
         #altcust-container,
         #custom-eas-container,
-        #custom-ean-container {
+        #custom-ean-container,
+        #generic-message-container {
             gap: 5px;
             border: 1px solid black;
             display: flex;
@@ -191,6 +236,15 @@
             align-items: center;
             padding: 5px;
             margin: 5px;
+        }
+
+        #generic-json-input {
+            font-family: monospace;
+            width: 600px;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         #toast-container {
@@ -297,6 +351,15 @@
             </div>
             <button id="add-row" onclick="addLMSRow()">➕ Add Row</button>
             <button id="send-lms-msg" onclick="sendLMSMessage()">Send Msg</button>
+        </div>
+        <div id="generic-message-container">
+            <h3>Generic JSON Message</h3>
+            <p>Enter any JSON you want to send via WebSocket:</p>
+            <textarea id="generic-json-input" placeholder='{"type": "example", "message": "your custom JSON here"}'></textarea>
+            <div style="display: flex; gap: 10px;">
+                <button id="format-json" onclick="formatJSON()">Format JSON</button>
+                <button id="send-generic-msg" onclick="sendGenericMessage()">Send Message</button>
+            </div>
         </div>
     </div>
 </body>

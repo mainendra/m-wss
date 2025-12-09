@@ -177,6 +177,11 @@ function sendLMSMessage(msgStr) {
         socket.send(msgStr);
     });
 }
+function sendGenericMessage(msgStr) {
+    wss.clients.forEach(socket => {
+        socket.send(msgStr);
+    });
+}
 function sendEANMessage3(durationMs, messageId, update, ignoreExpiry) {
     wss.clients.forEach(socket => {
         socket.send(JSON.stringify(eanWSMessage3(SERVER_URL, durationMs, messageId, update, ignoreExpiry)));
@@ -282,6 +287,29 @@ const server = createServer((req, resp) => {
         const contentType = 'text/html';
         resp.writeHead(200, { 'Content-Type': contentType });
         resp.end('Message sent');
+    } else if (reqUrl.includes('sendgeneric')) {
+        let body = '';
+
+        // Listen for data events and append to body
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+
+        // End event signals all data has been received
+        req.on('end', () => {
+            try {
+                // Validate JSON
+                const parsed = JSON.parse(body);
+                sendGenericMessage(body);
+                resp.writeHead(200, { 'Content-Type': 'text/html' });
+                resp.end('Message sent');
+            } catch (error) {
+                console.error('[Generic Message] Invalid JSON received:', error.message);
+                console.error('[Generic Message] Body was:', body);
+                resp.writeHead(400, { 'Content-Type': 'text/html' });
+                resp.end('Invalid JSON: ' + error.message);
+            }
+        });
     } else if(reqUrl.endsWith('sendeascorsurl')) {
         sendEASMessageCORSUrl();
         lastMessageFn = sendEASMessageCORSUrl();
